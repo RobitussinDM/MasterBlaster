@@ -1,0 +1,18 @@
+﻿## Interface: 71000
+## Title: MasterBlaster
+## Notes: Spell rotation helper
+## Author: Bovophiliac, based on original work done by Taracque, Felmosórongy of Arathor (Elementarist)
+## Version: 0.1
+## SavedVariables: MasterBlasterDB
+## OptionalDeps:
+## Dependencies: 
+## X-Curse-Packaged-Version: 0.1
+## X-Curse-Project-Name: MasterBlaster
+## X-Curse-Project-ID: MasterBlaster
+## X-Curse-Repository-ID: wow/MasterBlaster/mainline
+
+
+MasterBlaster.lua
+MB_GUI.lua
+Localization_enUS.lua
+modules\elemental.lua
