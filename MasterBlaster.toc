@@ -1,7 +1,7 @@
 ﻿## Interface: 71000
 ## Title: MasterBlaster
 ## Notes: Spell rotation helper
-## Author: Bovophiliac, based on original work done by Taracque, Felmosórongy of Arathor (Elementarist)
+## Author: Bovophiliac, based on original work done by Taracque, Felmosórongy of Arathor (Elementarist from https://mods.curse.com/addons/wow/elementarist)
 ## Version: 0.1
 ## SavedVariables: MasterBlasterDB
 ## OptionalDeps:
