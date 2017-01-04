@@ -545,41 +545,6 @@ function MasterBlaster:hasTotem(unit, spellName)
 	end
 end
 
--- show the current power(maelstrom, fury, etc) as a % of maximum
-function MasterBlaster:ShowUnitPower(...)
-	local guid = UnitGUID("target")
-	if  (UnitName("target") == nil) or (not UnitCanAttack("player","target")) or (UnitHealth("target") == 0) then
-		guid = nil
-	end
-
-	if (UnitInVehicle("player") and HasVehicleActionBar()) or ((guid == nil) or (UnitHealth("target") == 0)) then
-		-- player is in a "vehicle" or has no target
-		MasterBlaster.textList["power"]:SetText("")
-		return
-	end
-
-	local powerTypeIndex = UnitPowerType("player")
-	if not powerTypeIndex then return end
-
-	-- get the unit power per element (for example per burning ember)
-	local currentPower = UnitPower("player", powerTypeIndex)
-	local maxPower = UnitPowerMax("player", powerTypeIndex)
-
-	-- show as a percentage
-	if ((maxPower == nil) and (currentPower == nil)) then
-		MasterBlaster.textList["power"]:SetText("")
-	else
-		local powerPercent = (currentPower/maxPower) * 100
-		local displayText = ""
-		if (powerPercent < 80) then
-			displayText = format("%.f",powerPercent) .. " %"
-		else
-			displayText = "|cffff0000" .. format("%.f",powerPercent) .. " %|r"
-		end
-		MasterBlaster.textList["power"]:SetText(displayText)
-	end
-end
-
 -- determine if a spell is available
 function MasterBlaster:SpellAvailable(spell)
 	if (not spell) then
@@ -708,6 +673,41 @@ function MasterBlaster:DecideSpells()
 
 	spell = MasterBlaster:AoeSpell()
 	MasterBlaster:SetTexture(MasterBlaster.textureList["aoe"],GetSpellTexture(spell))
+end
+
+-- show the current power(maelstrom, fury, etc) as a % of maximum
+function MasterBlaster:ShowUnitPower(...)
+	local guid = UnitGUID("target")
+	if  (UnitName("target") == nil) or (not UnitCanAttack("player","target")) or (UnitHealth("target") == 0) then
+		guid = nil
+	end
+
+	if (UnitInVehicle("player") and HasVehicleActionBar()) or UnitOnTaxi("player") or ((guid == nil) or (UnitHealth("target") == 0)) then
+		-- player is in a "vehicle" or has no target
+		MasterBlaster.textList["power"]:SetText("")
+		return
+	end
+
+	local powerTypeIndex = UnitPowerType("player")
+	if not powerTypeIndex then return end
+
+	-- get the unit power per element (for example per burning ember)
+	local currentPower = UnitPower("player", powerTypeIndex)
+	local maxPower = UnitPowerMax("player", powerTypeIndex)
+
+	-- show as a percentage
+	if ((maxPower == nil) and (currentPower == nil)) then
+		MasterBlaster.textList["power"]:SetText("")
+	else
+		local powerPercent = (currentPower/maxPower) * 100
+		local displayText = ""
+		if (powerPercent < 80) then
+			displayText = format("%.f",powerPercent) .. " %"
+		else
+			displayText = "|cffff0000" .. format("%.f",powerPercent) .. " %|r"
+		end
+		MasterBlaster.textList["power"]:SetText(displayText)
+	end
 end
 
 -- update function to refresh our frames
