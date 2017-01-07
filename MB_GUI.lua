@@ -4,7 +4,7 @@
 
 local L = MasterBlaster.Locals
 
--- used to load spells into the advisor
+-- used to load spells into the adviser
 function MasterBlaster:SetTexture(frame,icon)
 	frame:SetTexture(icon)
 end
@@ -217,7 +217,7 @@ function MasterBlaster:CreateConfig()
 	return MasterBlaster.configPanel;
 end
 
--- reset the advisor to a default position
+-- reset the adviser to a default position
 function MasterBlaster:ResetPosition()
 	MasterBlasterDB.x = 0
 	MasterBlasterDB.y = -100
@@ -227,7 +227,7 @@ function MasterBlaster:ResetPosition()
 
 end
 
--- enable moving of the spell advisor
+-- enable moving of the spell adviser
 function MasterBlaster:MakeDraggable(frame,x_name,y_name,rp_name)
 	frame:SetBackdropColor(0, 0, 0, .3)
 	frame:EnableMouse(true)
@@ -260,12 +260,12 @@ function MasterBlaster:MakeDraggable(frame,x_name,y_name,rp_name)
 	end)
 end
 
--- enable moving of the spell advisor
+-- enable moving of the spell adviser
 function MasterBlaster:UnlockFrames()
 	MasterBlaster:MakeDraggable(MasterBlaster.displayFrame,"x","y","relativePoint")
 end
 
--- create the spell advisor and all the sub-frames
+-- create the spell adviser and all the sub-frames
 function MasterBlaster:CreateGUI()
 	local t
 	local displayFrame = CreateFrame("Frame","MasterBlasterDisplayFrame",UIParent)

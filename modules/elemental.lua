@@ -6,45 +6,36 @@ MasterBlaster.elemental = {
 	Initialize = function(self)
 		-- spells available to the elemental spec
 		MasterBlaster:LoadSpells({
-			["Ghost Wolf"] = GetSpellInfo(2645),
-			["Lightning Bolt"] = GetSpellInfo(403),
-			["Lava Burst"] = GetSpellInfo(51505),
-			["Chain Lightning"] = GetSpellInfo(421),
-			["Thunderstorm"] = GetSpellInfo(51490),
-			["Purge"]	= GetSpellInfo(370),
-			["Wind Shear"] = GetSpellInfo(57994),
-			["Earth Shock"] = GetSpellInfo(8042),
 			["Ascendance"] = GetSpellInfo(114050),
 			["Ascendance Buff"] = GetSpellInfo(114050),
-			["Echo of the Elements"] = GetSpellInfo(108283),
-			["Elemental Mastery"] = GetSpellInfo(16166),
-			["Flame Shock"] = GetSpellInfo(188389),
-			["Totem Mastery"] = GetSpellInfo(210643),
-			["Storm Totem Buff"] = GetSpellInfo(210652),
-			["Ember Totem Buff"] = GetSpellInfo(210658),
-			["Tailwind Totem Buff"] = GetSpellInfo(210659),
-			["Resonance Totem Buff"] = GetSpellInfo(202192),
-			["Fire Elemental"] = GetSpellInfo(198067),
-			["Storm Elemental"] = GetSpellInfo(192249),
-			["Icefury"] = GetSpellInfo(210714),
-			["Frost Shock"] = GetSpellInfo(196840),
+			["Chain Lightning"] = GetSpellInfo(421),
 			["Earthquake"] = GetSpellInfo(61882),
+			["Earth Shock"] = GetSpellInfo(8042),
+			["Echoes of the Great Sundering"] = GetSpellInfo(208723),
+			["Echo of the Elements"] = GetSpellInfo(108283),
 			["Elemental Blast"] = GetSpellInfo(117014),
-			["Stormkeeper"] = GetSpellInfo(205495),
+			["Elemental Mastery"] = GetSpellInfo(16166),
+			["Ember Totem Buff"] = GetSpellInfo(210658),
+			["Fire Elemental"] = GetSpellInfo(198067),
+			["Flame Shock"] = GetSpellInfo(188389),
+			["Frost Shock"] = GetSpellInfo(196840),
+			["Ghost Wolf"] = GetSpellInfo(2645),
+			["Icefury"] = GetSpellInfo(210714),
+			["Lava Burst"] = GetSpellInfo(51505),
+			["Lightning Bolt"] = GetSpellInfo(403),
+			["Liquid Magma Totem"] = GetSpellInfo(192222),
 			["Power of the Maelstrom"] = GetSpellInfo(191861),
 			["Power of the Maelstrom Buff"] = GetSpellInfo(191877),
-			["Echoes of the Great Sundering"] = GetSpellInfo(208723)
+			["Purge"]	= GetSpellInfo(370),
+			["Resonance Totem Buff"] = GetSpellInfo(202192),
+			["Stormkeeper"] = GetSpellInfo(205495),
+			["Storm Elemental"] = GetSpellInfo(192249),
+			["Storm Totem Buff"] = GetSpellInfo(210652),
+			["Tailwind Totem Buff"] = GetSpellInfo(210659),
+			["Totem Mastery"] = GetSpellInfo(210643),
+			["Thunderstorm"] = GetSpellInfo(51490),
+			["Wind Shear"] = GetSpellInfo(57994)
 		});
-
-		-- elemental armor set buffs (from WoD, not updated for legion)
-		MasterBlaster.ArmorSets = {
-			[165580]	= {	-- Shaman T17 DPS 4P Bonus
-				[115575] = true, [115576] = true, [115577] = true, [115578] = true, [115579] = true
-			},
-			[185872]	= {	-- Shaman T18 DPS 4P Bonus
-				[124293] = true, [124297] = true, [124302] = true, [124303] = true, [124308] = true
-			}
-		}
 	end;
 
 	-- determine the next spell to display
@@ -66,7 +57,7 @@ MasterBlaster.elemental = {
 		--  set the global cool down
 		MasterBlaster.lastBaseGCD = 1.5 - (1.5 * MasterBlaster.spellHaste * .01)
 		
-		-- timeshift is used for spells further in the advisor's future
+		-- timeshift is used for spells further in the adviser's future
 		-- it should be the cast time of the currently suggested spell + a gcd
 		if (not timeshift) then
 			timeshift = 0
@@ -78,10 +69,10 @@ MasterBlaster.elemental = {
 				spellInCastEndTime = spellInCastStartTime + (MasterBlaster.lastBaseGCD * 1000)
 			end
 			MasterBlaster.lastCastTime = spellInCastEndTime;
-			timeshift = timeshift + (spellInCastEndTime / 1000) - GetTime()
+			timeshift = timeshift + (spellInCastEndTime / 1000) - currentTime
 		else
 			-- to prevent tick in current spell, check if last one finished in short time
-			if (MasterBlaster.lastCastTime) and ((MasterBlaster.lastCastTime / 1000) + MasterBlaster.lastBaseGCD >= GetTime() ) then
+			if (MasterBlaster.lastCastTime) and ((MasterBlaster.lastCastTime / 1000) + MasterBlaster.lastBaseGCD >= currentTime) then
 				spellInCast = MasterBlaster.lastSpell
 			end
 
@@ -99,16 +90,16 @@ MasterBlaster.elemental = {
 		end
 
 		-- get target's flame shock debuff information
-		name, _, _, _, _, flameShockDuration,flameShockExpiration, unitCaster = MasterBlaster:hasDeBuff("target", MasterBlaster.SpellList["Flame Shock"], "player");
+		local flameShockDebuff, _, _, _, _, flameShockDuration,flameShockExpiration, unitCaster = MasterBlaster:hasDeBuff("target", MasterBlaster.SpellList["Flame Shock"], "player");
 		if (not flameShockExpiration) then
 			flameShockExpiration = 0
 			flameShockDuration = 0
 		end
 
-		-- get lava burst charges and adjust charges based on timeshift
-		local lavaBurstCharges, maxLavaBurstCharges, cooldownStart, cooldownLength = GetSpellCharges(MasterBlaster.SpellList["Lava Burst"]);
+		-- get lava burst charges and adjust charges based on how far in the future the adivser goes
+		local lavaBurstCharges, _, cooldownStart, cooldownLength = GetSpellCharges(MasterBlaster.SpellList["Lava Burst"]);
 		lavaBurstCharges = lavaBurstCharges - MasterBlaster:Count(MasterBlaster.SpellList["Lava Burst"], spellInCast,nextSpell1,nextSpell2);
-		if (((cooldownStart + cooldownLength)- GetTime()) - timeshift <= 0) then
+		if (((cooldownStart + cooldownLength)- currentTime) - timeshift <= 0) then
 			lavaBurstCharges = lavaBurstCharges + 1
 		end
 
@@ -141,81 +132,82 @@ MasterBlaster.elemental = {
 				haveTotem = false
 			end
 			if (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Totem Mastery"],spellInCast,nextSpell1,nextSpell2)) then
-				if (not haveTotem) or (totemName ~= MasterBlaster.SpellList["Totem Mastery"]) or (totemStart + totemDuration - currentTime - timeshift <= 0) then
+				if (not haveTotem) or (totemName ~= MasterBlaster.SpellList["Totem Mastery"]) or (totemStart + totemDuration - currentTime - timeshift <= 0.5) then
 					return MasterBlaster.SpellList["Totem Mastery"]
 				end
 			end
 		end
 
-		-- flame shock
-		if (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Flame Shock"],spellInCast,nextSpell1,nextSpell2)) then
-			if ((flameShockExpiration - currentTime - timeshift) < 1) then
+		-- flame shock if not on the target
+		if (flameShockDebuff == nil) then
+			if (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Flame Shock"],spellInCast,nextSpell1,nextSpell2)) then
 				return MasterBlaster.SpellList["Flame Shock"]
 			end
 		end
 
 		-- elemental blast if talented
-		if ((MasterBlaster:ZeroCount(MasterBlaster.SpellList["Elemental Blast"],spellInCast,nextSpell1,nextSpell2)) and
-			(IsSpellInRange(MasterBlaster.SpellList["Elemental Blast"], "target") == 1) ) then
+		if (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Elemental Blast"],spellInCast,nextSpell1,nextSpell2)) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Elemental Blast"])
-			if ((d - timeshift) <= 0) then
+			if ((d - timeshift) <= 0.5) then
 				return MasterBlaster.SpellList["Elemental Blast"]
 			end
 		end
 
 		-- earth shock if maelstrom capped
-		if (UnitPower("player",11)>=100) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earth Shock"],spellInCast,nextSpell1,nextSpell2)) then
+		if (UnitPower("player",11) >= 100) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earth Shock"],spellInCast,nextSpell1,nextSpell2)) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Earth Shock"])
-			if ((d - timeshift) <= 0) then
+			if ((d - timeshift) <= 0.5) then
 				return MasterBlaster.SpellList["Earth Shock"]
 			end
 		end
 		
 		-- icefury if talented and maelstrom <= 70, but not when ascendance is active
 		if (not ascendance) then
-			if (UnitPower("player",11)<70) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Icefury"],spellInCast,nextSpell1,nextSpell2)) then
+			if (UnitPower("player",11) < 70) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Icefury"],spellInCast,nextSpell1,nextSpell2)) then
 				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Icefury"])
-				if ((d - timeshift) <= 0) then
+				if ((d - timeshift) <= 0.5) then
 					return MasterBlaster.SpellList["Icefury"]
 				end
 			end
 		end
 
 		-- lava burst
-		if ( (lavaBurstCharges > 0) or((ascendanceExpires-GetTime()-timeshift) > 0)  ) and
+		if ( (lavaBurstCharges > 0) or((ascendanceExpires - currentTime - timeshift) > 0)) and
 			MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Lava Burst"])
 		then
-			if (IsSpellInRange(MasterBlaster.SpellList["Flame Shock"], "target") == 1) and
-			(
-				((flameShockExpiration~=0) and ((flameShockExpiration-GetTime()-timeshift) > lavaBurstCastTime)) or 
+			if (
+				((flameShockExpiration ~= 0) and ((flameShockExpiration - currentTime - timeshift) > lavaBurstCastTime)) or 
 				(MasterBlaster:Count(MasterBlaster.SpellList["Flame Shock"],spellInCast,nextSpell1,nextSpell2) > 0)
 			) then
 				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Lava Burst"])
-				if ((d-timeshift) <= 0) or ((ascendanceExpires-GetTime()-timeshift) > 0) then
+				if ((d - timeshift) <= 0.5) or ((ascendanceExpires - currentTime - timeshift) > 0) then
 					return MasterBlaster.SpellList["Lava Burst"]
 				end
 			end
 		end
+
+		-- flame shock if maelstrom > 20 and the flame shock debuff has < 9 seconds left
+		if (UnitPower("player",11) >= 20) and ((flameShockExpiration - currentTime - timeshift) < 9) then
+			if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Flame Shock"],spellInCast,nextSpell1,nextSpell2) then
+				return MasterBlaster.SpellList["Flame Shock"]
+			end
+		end
 		
 		-- earth shock if maelstrom > 90
-		if (UnitPower("player",11)>=90) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earth Shock"],spellInCast,nextSpell1,nextSpell2)) then
-			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Earth Shock"])
-			if ((d - timeshift) <= 0) then
-				return MasterBlaster.SpellList["Earth Shock"]
-			end
+		if (UnitPower("player",11) >= 90) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earth Shock"],spellInCast,nextSpell1,nextSpell2)) then
+			return MasterBlaster.SpellList["Earth Shock"]
 		end
 
 		-- stormkeeper if available
 		if (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Stormkeeper"],spellInCast,nextSpell1,nextSpell2)) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Stormkeeper"])
-			if ((d - timeshift) <= 0) then
+			if ((d - timeshift) <= 0.5) then
 				return MasterBlaster.SpellList["Stormkeeper"]
 			end
 		end
 
 		-- lightning bolt as filler
-		if IsSpellInRange(MasterBlaster.SpellList["Lightning Bolt"], "target") == 1 and
-			MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Lightning Bolt"])then
+		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Lightning Bolt"])then
 			return MasterBlaster.SpellList["Lightning Bolt"]
 		end
 
@@ -235,8 +227,7 @@ MasterBlaster.elemental = {
 		-- icefury buff on frost shock
 		name, _, icon, charges = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Icefury"])
 		if (name ~= nil) then
-			if IsSpellInRange(MasterBlaster.SpellList["Frost Shock"], "target") == 1 and
-				MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Frost Shock"]) then
+			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Frost Shock"]) then
 				return MasterBlaster.SpellList["Frost Shock"], icon, charges
 			end
 		end
@@ -244,8 +235,7 @@ MasterBlaster.elemental = {
 		-- show power of the maelstrom with proc count
 		name, _, icon, charges = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Power of the Maelstrom Buff"])
 		if (name ~= nil) then
-			if IsSpellInRange(MasterBlaster.SpellList["Lightning Bolt"], "target") == 1 and
-				MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Lightning Bolt"]) then
+			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Lightning Bolt"]) then
 				return MasterBlaster.SpellList["Lightning Bolt"], icon, charges
 			end
 		end
@@ -259,16 +249,16 @@ MasterBlaster.elemental = {
 
 		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Wind Shear"]) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Wind Shear"])
-			if ( (IsSpellInRange(MasterBlaster.SpellList["Wind Shear"], "target") == 1) and (d) and (d<0.5)  ) then
+			if ((IsSpellInRange(MasterBlaster.SpellList["Wind Shear"], "target") == 1) and (d) and (d < 0.5)) then
 				--- windshear to interupt channel spell
 				_, _, _, _, _, _, _, notInterruptible = UnitChannelInfo("target")
-				if (notInterruptible==false) then
+				if (notInterruptible == false) then
 					return MasterBlaster.SpellList["Wind Shear"]
 				end
 
 				--- windshear to interupt cast spell
 				_, _, _, _, _, _, _, _, notInterruptible = UnitCastingInfo("target")
-				if (notInterruptible==false)  then
+				if (notInterruptible == false)  then
 					return MasterBlaster.SpellList["Wind Shear"]
 				end
 			end
@@ -279,7 +269,7 @@ MasterBlaster.elemental = {
 			if IsSpellInRange(MasterBlaster.SpellList["Purge"], "target") == 1 then
 				if (MasterBlaster:hasBuff("target", ".", 1)) then
 					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Purge"])
-					if (d) and (d<0.5) then
+					if (d) and (d < 0.5) then
 						return MasterBlaster.SpellList["Purge"]
 					end
 				end
@@ -291,13 +281,12 @@ MasterBlaster.elemental = {
 
 	MajorSpell = function(self)
 		-- major dps cooldowns
-		local d
-		local name, expirationTime, _, name2, expirationTime2, name3, expirationTime3
+		local d, name
 
 		-- fire elemental
 		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Fire Elemental"]) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Fire Elemental"])
-			if d <= 0.5 then
+			if d <= MasterBlaster.lastBaseGCD then
 				return MasterBlaster.SpellList["Fire Elemental"]
 			end
 		end
@@ -305,7 +294,7 @@ MasterBlaster.elemental = {
 		-- storm elemental
 		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Storm Elemental"]) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Storm Elemental"])
-			if d <= 0.5 then
+			if d <= MasterBlaster.lastBaseGCD then
 				return MasterBlaster.SpellList["Storm Elemental"]
 			end
 		end
@@ -315,7 +304,7 @@ MasterBlaster.elemental = {
 			name = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Ascendance Buff"])
 			if (name == nil) then
 				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Ascendance"])
-				if d <= 0.5 then
+				if d <= MasterBlaster.lastBaseGCD then
 					return MasterBlaster.SpellList["Ascendance"]
 				end
 			end
@@ -324,7 +313,7 @@ MasterBlaster.elemental = {
 		-- elemental mastery
 		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Elemental Mastery"]) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Elemental Mastery"])
-			if d <= 0.5 then
+			if d <= MasterBlaster.lastBaseGCD then
 				return MasterBlaster.SpellList["Elemental Mastery"]
 			end
 		end
@@ -332,7 +321,7 @@ MasterBlaster.elemental = {
 		-- berserking
 		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Berserking"]) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Berserking"])
-			if d <= 0.5 then
+			if d <= MasterBlaster.lastBaseGCD then
 				return MasterBlaster.SpellList["Berserking"]
 			end
 		end
@@ -340,7 +329,7 @@ MasterBlaster.elemental = {
 		-- blood fury
 		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Blood Fury"]) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Blood Fury"])
-			if d <= 0.5 then
+			if d <= MasterBlaster.lastBaseGCD then
 				return MasterBlaster.SpellList["Blood Fury"]
 			end
 		end
@@ -352,7 +341,12 @@ MasterBlaster.elemental = {
 		-- aoe on target
 		local d
 
-		if (MasterBlaster.person["foeCount"]>1) then
+		if (MasterBlaster.person["foeCount"] > 1) then
+			-- always use liquid magma totem if available
+			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Liquid Magma Totem"]) then
+				return MasterBlaster.SpellList["Liquid Magma Totem"]
+			end
+
 			-- only recommend stormkeeper if ascendance isn't active
 			local ascendanceActive = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Ascendance Buff"]);
 			if (ascendanceActive == nil) then
@@ -364,7 +358,7 @@ MasterBlaster.elemental = {
 			end
 
 			-- earthquake if you have the maelstrom and 3 or more targets
-			if (MasterBlaster.person["foeCount"]>=3) and MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Earthquake"]) then
+			if (MasterBlaster.person["foeCount"] >= 3) and MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Earthquake"]) then
 				return MasterBlaster.SpellList["Earthquake"]
 			end
 

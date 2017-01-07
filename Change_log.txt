@@ -4,3 +4,8 @@ Initial version
 **v0.2**
 Fixed an issue where player power would be displayed when targeting an enemy
 while on a flight path.
+
+**v0.3**
+Added support for enhancement shaman.
+Cleaned up the elemental rotation with regards to flame shock.
+Minor code housekeeping.

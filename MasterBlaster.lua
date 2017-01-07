@@ -1,6 +1,4 @@
--------------------------------------------------------------------------------
--- Shows the advised spell for an elemental shaman for optimal DPS output.
--------------------------------------------------------------------------------
+-- shows the advised spell for optimal DPS output.
 
 MasterBlaster = {Locals = {}}
 local L = MasterBlaster.Locals
@@ -37,7 +35,7 @@ MasterBlaster.SpellList = {
 	["Berserking"] = GetSpellInfo(26297),	-- Troll racial
 	["Blood Fury"] = GetSpellInfo(33697),	-- Orc racial
 }
--- list of currently shown textures in the spell advisor
+-- list of currently shown textures in the spell adviser
 MasterBlaster.textureList = {
 	["next"] = nil,
 	["next1"] = nil,
@@ -47,7 +45,7 @@ MasterBlaster.textureList = {
 	["misc"] = nil,
 	["aoe"] = nil
 }
--- list of currently shown text values in the spell advisor
+-- list of currently shown text values in the spell adviser
 MasterBlaster.textList = {
 	["misc_charges"] = nil,
 	["power"] = nil
@@ -200,7 +198,7 @@ function MasterBlaster.events.COMBAT_LOG_EVENT_UNFILTERED(timestamp, event, hide
 
 			-- count enemies if player in combat
 			if (UnitAffectingCombat("player")) then
-				-- enemy count for aoe advisor
+				-- enemy count for aoe adviser
 				MasterBlaster:CountPerson(timestamp, event, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags)
 			end
 		end
@@ -322,11 +320,13 @@ function MasterBlaster:detectSpecialization()
 	-- currently only available for elemental shaman
 	if playerClass == "SHAMAN" then
 		if (activeSpec == 1) then
-			-- use elemental file
 			spec = "elemental"
 			MasterBlaster.enabled = true;
-		else
-			spec = "";
+		elseif (activeSpec == 2) then
+			spec = "enhancement"
+			MasterBlaster.enabled = true; -- not ready yet
+		elseif (activeSpec == 3) then
+			spec = "restoration";
 			MasterBlaster.enabled = false;
 			return;
 		end
@@ -345,11 +345,12 @@ function MasterBlaster:detectSpecialization()
 	end;
 	
 	-- Get talent tree
-	for i=1,7 do
-		MasterBlaster.talents[i] = 0
-		for j=1,3 do
-			if select(3,GetTalentInfo(i,j,1)) then
-				MasterBlaster.talents[i] = j
+	for tier=1,7 do
+		MasterBlaster.talents[tier] = 0
+		for column=1,3 do
+			local _,_,_,selected = GetTalentInfo(tier,column,1)
+			if selected then
+				MasterBlaster.talents[tier] = column
 			end
 		end
 	end
@@ -557,7 +558,7 @@ function MasterBlaster:SpellAvailable(spell)
 	end
 end
 
--- spell advisor funtions, called in the loaded module
+-- spell adviser funtions, called in the loaded module
 function MasterBlaster:NextSpell(...)
 	return MasterBlaster:CallModule("NextSpell", ...);
 end
@@ -578,7 +579,7 @@ function MasterBlaster:AoeSpell(...)
 	return MasterBlaster:CallModule("AoeSpell", ...)
 end
 
--- empty the advisor
+-- empty the adviser
 function MasterBlaster:EmptyFrames()
 	MasterBlaster:SetTexture(MasterBlaster.textureList["next"],"")
 	MasterBlaster:SetTexture(MasterBlaster.textureList["next1"],"")
@@ -593,7 +594,7 @@ function MasterBlaster:EmptyFrames()
 	MasterBlaster.textList["power"]:SetText("")
 end
 
--- determine the spells to show in the advisor
+-- determine the spells to show in the adviser
 function MasterBlaster:DecideSpells()
 	if (not MasterBlaster.enabled) then
 		return;
@@ -617,37 +618,39 @@ function MasterBlaster:DecideSpells()
 	spell = MasterBlaster:NextSpell()
 	if (spell) then
 		local d = MasterBlaster:GetSpellCooldownRemaining(spell)
-		if (d) and (d>0) then
-			local cdStart = currentTime - MasterBlaster.lastBaseGCD + d  -- should be less then the base gcd if we are suggesting it
-			if (cdStart) and (MasterBlaster.lastBaseGCD) then
-				MasterBlaster.cooldownFrame:SetCooldown(cdStart, MasterBlaster.lastBaseGCD)
+		if (d) and (d > 0) then
+			local cooldownStart = currentTime - MasterBlaster.lastBaseGCD + d  -- should be less then the base gcd if we are suggesting it
+			if (cooldownStart) and (MasterBlaster.lastBaseGCD) then
+				MasterBlaster.cooldownFrame:SetCooldown(cooldownStart, MasterBlaster.lastBaseGCD)
 			end
 		end
 		MasterBlaster:SetTexture(MasterBlaster.textureList["next"],GetSpellTexture(spell))
 
-		local _,_,_,ct1=GetSpellInfo(spell)
-		if (not ct1) then
-			ct1 = 0
+		local _,_,_,castingTime1=GetSpellInfo(spell)
+		if (not castingTime1) then
+			castingTime1 = 0
 		else
-			ct1 = (ct1 / 1000)
+			castingTime1 = (castingTime1 / 1000)
 		end
-		if (not ct1) or (ct1 < MasterBlaster.lastBaseGCD) then
-			ct2 = MasterBlaster.lastBaseGCD
+		if (not castingTime1) or (castingTime1 < MasterBlaster.lastBaseGCD) then
+			castingTime1 = MasterBlaster.lastBaseGCD
 		end
-		local spell1 = MasterBlaster:NextSpell(ct1,spell)
-		MasterBlaster:SetTexture(MasterBlaster.textureList["next1"],GetSpellTexture(spell1))
 
-		local _,_,_,ct2=GetSpellInfo(spell1)
-		if (not ct2) then
-			ct2 = 0
+		local next1 = MasterBlaster:NextSpell(castingTime1,spell)
+		MasterBlaster:SetTexture(MasterBlaster.textureList["next1"],GetSpellTexture(next1))
+
+		local _,_,_,castingTime2=GetSpellInfo(next1)
+		if (not castingTime2) then
+			castingTime2 = 0
 		else
-			ct2 = (ct2 / 1000)
+			castingTime2 = (castingTime2 / 1000)
 		end
-		if (not ct2) or (ct2 < MasterBlaster.lastBaseGCD) then
-			ct2 = MasterBlaster.lastBaseGCD
+		if (not castingTime2) or (castingTime2 < MasterBlaster.lastBaseGCD) then
+			castingTime2 = MasterBlaster.lastBaseGCD
 		end
-		local spell2 = MasterBlaster:NextSpell(ct1+ct2,spell,spell1)
-		MasterBlaster:SetTexture(MasterBlaster.textureList["next2"],GetSpellTexture(spell2))
+
+		local next2 = MasterBlaster:NextSpell(castingTime1+castingTime2,spell,next1)
+		MasterBlaster:SetTexture(MasterBlaster.textureList["next2"],GetSpellTexture(next2))
 	end
 
 	local icon,charges
