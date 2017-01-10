@@ -161,12 +161,22 @@ MasterBlaster.elemental = {
 			end
 		end
 		
-		-- icefury if talented and maelstrom <= 70, but not when ascendance is active
-		if (not ascendance) then
+		-- icefury if talented and maelstrom <= 70
+		if MasterBlaster.talents[7] == 3 then
 			if (UnitPower("player",11) < 70) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Icefury"],spellInCast,nextSpell1,nextSpell2)) then
 				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Icefury"])
 				if ((d - timeshift) <= 0.5) then
 					return MasterBlaster.SpellList["Icefury"]
+				end
+			end
+
+			-- if icefury is already in queue and we have no frost shocks, queue one up to avoid capping
+			if (
+				MasterBlaster:Count(MasterBlaster.SpellList["Icefury"],spellInCast,nextSpell1,nextSpell2) == 1) and 
+				(MasterBlaster:ZeroCount(MasterBlaster.SpellList["Frost Shock"],spellInCast,nextSpell1,nextSpell2)
+			) then
+				if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Frost Shock"]) then
+					return MasterBlaster.SpellList["Frost Shock"], icon, charges
 				end
 			end
 		end
@@ -198,6 +208,20 @@ MasterBlaster.elemental = {
 			return MasterBlaster.SpellList["Earth Shock"]
 		end
 
+		-- if you have an icefury buff, frost shock if you have > 20 maelstrom
+		if MasterBlaster.talents[7] == 3 then
+			local hasIcefuryBuff, _, _, charges = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Icefury"])
+			if (hasIcefuryBuff ~= nil) then
+				local currentMaelstrom = UnitPower("player",11)
+				local totalFrostShocksInQueue = MasterBlaster:Count(MasterBlaster.SpellList["Frost Shock"],spellInCast,nextSpell1,nextSpell2)
+				if currentMaelstrom > (totalFrostShocksInQueue * 20) then
+					if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Frost Shock"]) then
+						return MasterBlaster.SpellList["Frost Shock"], icon, charges
+					end
+				end
+			end
+		end
+
 		-- stormkeeper if available
 		if (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Stormkeeper"],spellInCast,nextSpell1,nextSpell2)) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Stormkeeper"])
@@ -225,10 +249,12 @@ MasterBlaster.elemental = {
 		end
 
 		-- icefury buff on frost shock
-		name, _, icon, charges = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Icefury"])
-		if (name ~= nil) then
-			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Frost Shock"]) then
-				return MasterBlaster.SpellList["Frost Shock"], icon, charges
+		if MasterBlaster.talents[7] == 3 then
+			name, _, icon, charges = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Icefury"])
+			if (name ~= nil) then
+				if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Frost Shock"]) then
+					return MasterBlaster.SpellList["Frost Shock"], icon, charges
+				end
 			end
 		end
 
@@ -292,29 +318,35 @@ MasterBlaster.elemental = {
 		end
 		
 		-- storm elemental
-		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Storm Elemental"]) then
-			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Storm Elemental"])
-			if d <= MasterBlaster.lastBaseGCD then
-				return MasterBlaster.SpellList["Storm Elemental"]
+		if MasterBlaster.talents[6] == 2 then
+			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Storm Elemental"]) then
+				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Storm Elemental"])
+				if d <= MasterBlaster.lastBaseGCD then
+					return MasterBlaster.SpellList["Storm Elemental"]
+				end
 			end
 		end
 
 		-- ascendance
-		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Ascendance"]) then
-			name = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Ascendance Buff"])
-			if (name == nil) then
-				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Ascendance"])
-				if d <= MasterBlaster.lastBaseGCD then
-					return MasterBlaster.SpellList["Ascendance"]
+		if MasterBlaster.talents[7] == 1 then
+			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Ascendance"]) then
+				name = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Ascendance Buff"])
+				if (name == nil) then
+					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Ascendance"])
+					if d <= MasterBlaster.lastBaseGCD then
+						return MasterBlaster.SpellList["Ascendance"]
+					end
 				end
 			end
 		end
 
 		-- elemental mastery
-		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Elemental Mastery"]) then
-			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Elemental Mastery"])
-			if d <= MasterBlaster.lastBaseGCD then
-				return MasterBlaster.SpellList["Elemental Mastery"]
+		if MasterBlaster.talents[4] == 3 then
+			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Elemental Mastery"]) then
+				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Elemental Mastery"])
+				if d <= MasterBlaster.lastBaseGCD then
+					return MasterBlaster.SpellList["Elemental Mastery"]
+				end
 			end
 		end
 	
@@ -343,8 +375,10 @@ MasterBlaster.elemental = {
 
 		if (MasterBlaster.person["foeCount"] > 1) then
 			-- always use liquid magma totem if available
-			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Liquid Magma Totem"]) then
-				return MasterBlaster.SpellList["Liquid Magma Totem"]
+			if MasterBlaster.talents[6] == 1 then
+				if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Liquid Magma Totem"]) then
+					return MasterBlaster.SpellList["Liquid Magma Totem"]
+				end
 			end
 
 			-- only recommend stormkeeper if ascendance isn't active

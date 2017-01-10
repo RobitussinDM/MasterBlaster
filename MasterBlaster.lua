@@ -25,15 +25,16 @@ MasterBlaster.configPanel = nil;
 MasterBlaster.prevDB = {};
 MasterBlaster.DebugChat = DEFAULT_CHAT_FRAME;
 MasterBlaster.inParty = 0;
-MasterBlaster.spec = ""  -- name of the specialization 
-MasterBlaster.specUnsure = true
+MasterBlaster.spec = "";  -- name of the specialization 
+MasterBlaster.specUnsure = true;
+MasterBlaster.meleeSpec = false;
 MasterBlaster.lastSpell = ""
 MasterBlaster.lastCastTime = 0
 -- spells available to multiple modules
 MasterBlaster.SpellList = {
-	-- racials
-	["Berserking"] = GetSpellInfo(26297),	-- Troll racial
-	["Blood Fury"] = GetSpellInfo(33697),	-- Orc racial
+	-- racials are available across specs
+	["Berserking"] = GetSpellInfo(26297),	-- troll racial
+	["Blood Fury"] = GetSpellInfo(33697),	-- orc racial
 }
 -- list of currently shown textures in the spell adviser
 MasterBlaster.textureList = {
@@ -322,17 +323,21 @@ function MasterBlaster:detectSpecialization()
 		if (activeSpec == 1) then
 			spec = "elemental"
 			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = false;
 		elseif (activeSpec == 2) then
 			spec = "enhancement"
-			MasterBlaster.enabled = true; -- not ready yet
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = true;
 		elseif (activeSpec == 3) then
 			spec = "restoration";
 			MasterBlaster.enabled = false;
+			MasterBlaster.meleeSpec = false;
 			return;
 		end
 	else
 		spec = "";
 		MasterBlaster.enabled = false;
+		MasterBlaster.meleeSpec = false;
 		return;
 	end
 	
@@ -615,7 +620,7 @@ function MasterBlaster:DecideSpells()
 	end
 
 	local spell = ""
-	spell = MasterBlaster:NextSpell()
+	spell, meleeRange = MasterBlaster:NextSpell()
 	if (spell) then
 		local d = MasterBlaster:GetSpellCooldownRemaining(spell)
 		if (d) and (d > 0) then
@@ -625,6 +630,13 @@ function MasterBlaster:DecideSpells()
 			end
 		end
 		MasterBlaster:SetTexture(MasterBlaster.textureList["next"],GetSpellTexture(spell))
+		if (MasterBlaster.meleeSpec) then
+			if meleeRange then
+				MasterBlaster.textureList["next"]:SetVertexColor(1, 1, 1)
+			else
+				MasterBlaster.textureList["next"]:SetVertexColor(1, 0, 0)
+			end
+		end
 
 		local _,_,_,castingTime1=GetSpellInfo(spell)
 		if (not castingTime1) then
@@ -638,6 +650,13 @@ function MasterBlaster:DecideSpells()
 
 		local next1 = MasterBlaster:NextSpell(castingTime1,spell)
 		MasterBlaster:SetTexture(MasterBlaster.textureList["next1"],GetSpellTexture(next1))
+		if (MasterBlaster.meleeSpec) then
+			if meleeRange then
+				MasterBlaster.textureList["next1"]:SetVertexColor(1, 1, 1)
+			else
+				MasterBlaster.textureList["next1"]:SetVertexColor(1, 0, 0)
+			end
+		end
 
 		local _,_,_,castingTime2=GetSpellInfo(next1)
 		if (not castingTime2) then
@@ -651,6 +670,13 @@ function MasterBlaster:DecideSpells()
 
 		local next2 = MasterBlaster:NextSpell(castingTime1+castingTime2,spell,next1)
 		MasterBlaster:SetTexture(MasterBlaster.textureList["next2"],GetSpellTexture(next2))
+		if (MasterBlaster.meleeSpec) then
+			if meleeRange then
+				MasterBlaster.textureList["next2"]:SetVertexColor(1, 1, 1)
+			else
+				MasterBlaster.textureList["next2"]:SetVertexColor(1, 0, 0)
+			end
+		end
 	end
 
 	local icon,charges

@@ -9,3 +9,7 @@ while on a flight path.
 Added support for enhancement shaman.
 Cleaned up the elemental rotation with regards to flame shock.
 Minor code housekeeping.
+
+**v0.4**
+Updated for 7.1.5 class changes
+Added check for melee range for melee specs
