@@ -4,7 +4,7 @@ MasterBlaster = {Locals = {}}
 local L = MasterBlaster.Locals
 
 -- variables to save game state
-MasterBlaster.versionNumber = '0.1';
+MasterBlaster.versionNumber = '0.5';
 MasterBlaster.enabled = true;
 MasterBlaster.playerName = UnitName("player");
 MasterBlaster.playerGUID = UnitGUID("player");
@@ -249,7 +249,7 @@ function MasterBlaster:RegisterModule(spec)
 end;
 
 -- call a function in the selected module
-function MasterBlaster:CallModule( funcName, ... )
+function MasterBlaster:CallModule(funcName, ... )
 	if (MasterBlaster.modules[MasterBlaster.spec]) and (MasterBlaster[MasterBlaster.spec]) and (MasterBlaster[MasterBlaster.spec][funcName]) then
 		return MasterBlaster[MasterBlaster.spec][funcName](self,...);
 	end;
@@ -318,7 +318,6 @@ function MasterBlaster:detectSpecialization()
 	local _,playerClass = UnitClass("player")
 	local activeSpec = GetSpecialization()
 
-	-- currently only available for elemental shaman
 	if playerClass == "SHAMAN" then
 		if (activeSpec == 1) then
 			spec = "elemental"
@@ -328,8 +327,19 @@ function MasterBlaster:detectSpecialization()
 			spec = "enhancement"
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = true;
-		elseif (activeSpec == 3) then
-			spec = "restoration";
+		else
+			spec = ""
+			MasterBlaster.enabled = false;
+			MasterBlaster.meleeSpec = false;
+			return;
+		end
+	elseif playerClass == "DRUID" then
+		if (activeSpec == 1) then
+			spec = "balance"
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = false;
+		else
+			spec = ""
 			MasterBlaster.enabled = false;
 			MasterBlaster.meleeSpec = false;
 			return;
@@ -340,7 +350,7 @@ function MasterBlaster:detectSpecialization()
 		MasterBlaster.meleeSpec = false;
 		return;
 	end
-	
+
 	-- check there is a registered module for the specialization and configuration information is saved in the MasterBlasterDB variables
 	if (spec ~= "") and (spec ~= MasterBlaster.spec) then
 		if (MasterBlaster.modules) and (MasterBlaster.modules[spec]) and (MasterBlaster[spec].Initialize) then
@@ -372,7 +382,7 @@ end
 function MasterBlaster:PlayerInParty()
 	if (IsInRaid()) then
 		return 2
-	elseif (GetNumGroupMembers()>0) then
+	elseif (GetNumGroupMembers() > 0) then
 		return 1
 	else
 		return 0
@@ -636,6 +646,8 @@ function MasterBlaster:DecideSpells()
 			else
 				MasterBlaster.textureList["next"]:SetVertexColor(1, 0, 0)
 			end
+		else
+			MasterBlaster.textureList["next"]:SetVertexColor(1, 1, 1)
 		end
 
 		local _,_,_,castingTime1=GetSpellInfo(spell)
@@ -656,6 +668,8 @@ function MasterBlaster:DecideSpells()
 			else
 				MasterBlaster.textureList["next1"]:SetVertexColor(1, 0, 0)
 			end
+		else
+			MasterBlaster.textureList["next1"]:SetVertexColor(1, 1, 1)
 		end
 
 		local _,_,_,castingTime2=GetSpellInfo(next1)
@@ -676,6 +690,8 @@ function MasterBlaster:DecideSpells()
 			else
 				MasterBlaster.textureList["next2"]:SetVertexColor(1, 0, 0)
 			end
+		else
+			MasterBlaster.textureList["next2"]:SetVertexColor(1, 1, 1)
 		end
 	end
 

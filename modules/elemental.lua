@@ -44,7 +44,7 @@ MasterBlaster.elemental = {
 		local d
 
 		-- if target is dead, return
-		if (UnitHealth("target")<=0) then
+		if (UnitHealth("target") <= 0) then
 			return ""
 		end
 
@@ -65,7 +65,7 @@ MasterBlaster.elemental = {
 
 		-- adjust current spell to deal with gcd and delay
 		if (spellInCast) then
-			if ( (spellInCastEndTime - spellInCastStartTime) / 1000 ) < MasterBlaster.lastBaseGCD then
+			if ((spellInCastEndTime - spellInCastStartTime) / 1000 ) < MasterBlaster.lastBaseGCD then
 				spellInCastEndTime = spellInCastStartTime + (MasterBlaster.lastBaseGCD * 1000)
 			end
 			MasterBlaster.lastCastTime = spellInCastEndTime;
@@ -182,7 +182,7 @@ MasterBlaster.elemental = {
 		end
 
 		-- lava burst
-		if ( (lavaBurstCharges > 0) or((ascendanceExpires - currentTime - timeshift) > 0)) and
+		if ((lavaBurstCharges > 0) or ((ascendanceExpires - currentTime - timeshift) > 0)) and
 			MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Lava Burst"])
 		then
 			if (
@@ -216,7 +216,7 @@ MasterBlaster.elemental = {
 				local totalFrostShocksInQueue = MasterBlaster:Count(MasterBlaster.SpellList["Frost Shock"],spellInCast,nextSpell1,nextSpell2)
 				if currentMaelstrom > (totalFrostShocksInQueue * 20) then
 					if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Frost Shock"]) then
-						return MasterBlaster.SpellList["Frost Shock"], icon, charges
+						return MasterBlaster.SpellList["Frost Shock"]
 					end
 				end
 			end

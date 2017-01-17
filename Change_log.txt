@@ -13,3 +13,7 @@ Minor code housekeeping.
 **v0.4**
 Updated for 7.1.5 class changes
 Added check for melee range for melee specs
+
+**v0.5**
+Added a balance module for druids
+Minor code housekeeping.

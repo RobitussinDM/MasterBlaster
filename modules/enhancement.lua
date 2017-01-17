@@ -39,7 +39,7 @@ MasterBlaster.enhancement = {
 		local d
 
 		-- if target is dead, return
-		if (UnitHealth("target")<=0) then
+		if (UnitHealth("target") <= 0) then
 			return ""
 		end
 
@@ -57,7 +57,7 @@ MasterBlaster.enhancement = {
 
 		-- adjust current spell to deal with gcd and delay
 		if (spellInCast) then
-			if ( (spellInCastEndTime - spellInCastStartTime) / 1000 ) < MasterBlaster.lastBaseGCD then
+			if ((spellInCastEndTime - spellInCastStartTime) / 1000 ) < MasterBlaster.lastBaseGCD then
 				spellInCastEndTime = spellInCastStartTime + (MasterBlaster.lastBaseGCD * 1000)
 			end
 			MasterBlaster.lastCastTime = spellInCastEndTime;
