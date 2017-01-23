@@ -17,3 +17,6 @@ Added check for melee range for melee specs
 **v0.5**
 Added a balance module for druids
 Minor code housekeeping.
+
+**v0.6**
+Added a frost module for dks

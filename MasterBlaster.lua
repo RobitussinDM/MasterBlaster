@@ -4,7 +4,7 @@ MasterBlaster = {Locals = {}}
 local L = MasterBlaster.Locals
 
 -- variables to save game state
-MasterBlaster.versionNumber = '0.5';
+MasterBlaster.versionNumber = '0.6';
 MasterBlaster.enabled = true;
 MasterBlaster.playerName = UnitName("player");
 MasterBlaster.playerGUID = UnitGUID("player");
@@ -338,6 +338,17 @@ function MasterBlaster:detectSpecialization()
 			spec = "balance"
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = false;
+		else
+			spec = ""
+			MasterBlaster.enabled = false;
+			MasterBlaster.meleeSpec = false;
+			return;
+		end
+	elseif playerClass == "DEATHKNIGHT" then
+		if (activeSpec == 2) then
+			spec = "frost_dk"
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = true;
 		else
 			spec = ""
 			MasterBlaster.enabled = false;
