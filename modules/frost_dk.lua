@@ -86,25 +86,27 @@ MasterBlaster.frost_dk = {
 			frostFeverDuration = 0
 		end
 
+		-- get player's icy talons buff information
+		local icyTalonsBuff, _, _, _, _, _, icyTalonsExpires = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Icy Talons Buff"]);
+		if (icyTalonsBuff == nil) then
+			icyTalonsExpires = 0
+		end
+
 		-- check if in melee range
 		local meleeRange = (IsSpellInRange(MasterBlaster.SpellList["Obliterate"], "target") == 1)
+
+		-- get unit power variables
 		local currentRunes = UnitPower("player", 5)
 		local currentRunicPower = UnitPower("player", 6)
 
-		-- pillar of frost if you have it
-		if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Pillar of Frost"],spellInCast,nextSpell1,nextSpell2) then
-            d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Pillar of Frost"])
-            if ((d - timeshift) <= 0.5) then
-                return MasterBlaster.SpellList["Pillar of Frost"], meleeRange
-            end
-        end
-
-		-- if we don't have icy talon's buff, frost strike
-		if (not MasterBlaster:hasBuff("player", MasterBlaster.SpellList["Icy Talons Buff"])) then
-			if (currentRunicPower >= 25) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Frost Strike"],spellInCast,nextSpell1,nextSpell2)) then
-				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Frost Strike"])
-				if ((d - timeshift) <= 0.5) then
-					return MasterBlaster.SpellList["Frost Strike"], meleeRange
+		-- if we don't have icy talon's buff, frost strike if we can
+		if MasterBlaster.talents[1] == 2 then
+			if (icyTalonsBuff == nil) or ((icyTalonsExpires - currentTime - timeshift) <= 1.5) then
+				if (currentRunicPower >= 25) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Frost Strike"],spellInCast,nextSpell1,nextSpell2)) then
+					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Frost Strike"])
+					if ((d - timeshift) <= 0.5) then
+						return MasterBlaster.SpellList["Frost Strike"], meleeRange
+					end
 				end
 			end
 		end
@@ -130,11 +132,24 @@ MasterBlaster.frost_dk = {
 		end
 
 		-- obliterate if we have the runes
-		local totalObliteratesInQueue = MasterBlaster:Count(MasterBlaster.SpellList["Obliterate"],spellInCast,nextSpell1,nextSpell2)
-		if currentRunicPower > (totalObliteratesInQueue * 2) then
-			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Obliterate"])
-			if ((d - timeshift) <= 0.5) then
-				return MasterBlaster.SpellList["Obliterate"], meleeRange
+		-- obliterate isn't part of the 'machine gun' spec, so don't recommend if using talents [6][1] and [7][3]
+		if (not (MasterBlaster.talents[6] == 1) and (MasterBlaster.talents[7] == 3)) then
+			local totalObliteratesInQueue = MasterBlaster:Count(MasterBlaster.SpellList["Obliterate"],spellInCast,nextSpell1,nextSpell2)
+			if currentRunicPower > (totalObliteratesInQueue * 2) then
+				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Obliterate"])
+				if ((d - timeshift) <= 0.5) then
+					return MasterBlaster.SpellList["Obliterate"], meleeRange
+				end
+			end
+		end
+
+		-- glacial advance if we can
+		if MasterBlaster.talents[7] == 3 then
+			if (currentRunes >= 1) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Glacial Advance"],spellInCast,nextSpell1,nextSpell2)) then
+				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Glacial Advance"])
+				if ((d - timeshift) <= 0.5) then
+					return MasterBlaster.SpellList["Glacial Advance"], meleeRange
+				end
 			end
 		end
 		
@@ -146,9 +161,19 @@ MasterBlaster.frost_dk = {
 			end
 		end
 
-		-- frost strike if we have > 25 runic power
+		-- frostscythe if available and talented
+		if MasterBlaster.talents[6] == 1 then
+			if (currentRunes >= 1) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Frostscythe"],spellInCast,nextSpell1,nextSpell2)) then
+				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Frostscythe"])
+				if ((d - timeshift) <= 0.5) then
+					return MasterBlaster.SpellList["Frostscythe"], meleeRange
+				end
+			end
+		end
+
+		-- frost strike if we have > 40 runic power
 		local totalFrostStrikesInQueue = MasterBlaster:Count(MasterBlaster.SpellList["Frost Strike"],spellInCast,nextSpell1,nextSpell2)
-		if (currentRunicPower >= 25) and (currentRunicPower > (totalFrostStrikesInQueue * 25)) then
+		if (currentRunicPower >= 40) and (currentRunicPower > (totalFrostStrikesInQueue * 25)) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Frost Strike"])
 			if ((d - timeshift) <= 0.5) then
 				return MasterBlaster.SpellList["Frost Strike"], meleeRange
@@ -212,6 +237,14 @@ MasterBlaster.frost_dk = {
 		-- major dps cooldowns
 		local d, name
 
+		-- pillar of frost if you have it
+		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Pillar of Frost"]) then
+			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Pillar of Frost"])
+			if d <= MasterBlaster.lastBaseGCD then
+				return MasterBlaster.SpellList["Pillar of Frost"]
+			end
+		end
+
 		-- sindragosa's fury if there's 5 stacks of razorice
 		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Sindragosa's Fury"]) then
             d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Sindragosa's Fury"])
@@ -263,7 +296,17 @@ MasterBlaster.frost_dk = {
 		local d
 
 		if (MasterBlaster.person["foeCount"] > 1) then
-			---- crash lightning if you have the maelstrom
+			-- frostscythe if talented
+			if MasterBlaster.talents[6] == 1 then
+					if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Frostscythe"]) then
+					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Frostscythe"])
+					if d <= MasterBlaster.lastBaseGCD then
+						return MasterBlaster.SpellList["Frostscythe"]
+					end
+				end
+			end
+
+			-- howling blast if available
 			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Howling Blast"]) then
 				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Howling Blast"])
 				if d <= MasterBlaster.lastBaseGCD then

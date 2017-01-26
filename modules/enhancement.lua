@@ -84,6 +84,9 @@ MasterBlaster.enhancement = {
 		-- check if in melee range
 		local meleeRange = (IsSpellInRange(MasterBlaster.SpellList["Stormstrike"], "target") == 1)
 
+		-- get unit power variables
+		local currentMaelstrom = UnitPower("player", 11)
+
 		-- boulderfist to start if talented
 		if MasterBlaster.talents[1] == 3 then
 			local boulderfistCharges, _, cooldownStart, cooldownLength = GetSpellCharges(MasterBlaster.SpellList["Boulderfist"]);
@@ -144,7 +147,7 @@ MasterBlaster.enhancement = {
 
 		-- earthen spike if talented
 		if MasterBlaster.talents[7] == 3 then
-			if (UnitPower("player",11) >= 30) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earthen Spike"],spellInCast,nextSpell1,nextSpell2)) then
+			if (currentMaelstrom >= 30) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earthen Spike"],spellInCast,nextSpell1,nextSpell2)) then
 				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Earthen Spike"])
 				if ((d - timeshift) <= 0.5) then
 					return MasterBlaster.SpellList["Earthen Spike"], meleeRange
@@ -154,7 +157,7 @@ MasterBlaster.enhancement = {
 
 		-- lightning bolt if overcharge is talented and above 50 maelstrom
 		if MasterBlaster.talents[5] == 2 then
-			if (UnitPower("player",11) >= 50) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Lightning Bolt"],spellInCast,nextSpell1,nextSpell2)) then
+			if (currentMaelstrom >= 50) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Lightning Bolt"],spellInCast,nextSpell1,nextSpell2)) then
 				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Lightning Bolt"])
 				if ((d - timeshift) <= 0.5) then
 					return MasterBlaster.SpellList["Lightning Bolt"], meleeRange
@@ -232,7 +235,7 @@ MasterBlaster.enhancement = {
 
 		-- crash lightning if crashing storm talented and above 80 maelstrom
 		if MasterBlaster.talents[6] == 1 then
-			if (UnitPower("player",11) >= 80) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Crash Lightning"],spellInCast,nextSpell1,nextSpell2)) then
+			if (currentMaelstrom >= 80) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Crash Lightning"],spellInCast,nextSpell1,nextSpell2)) then
 				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Crash Lightning"])
 				if ((d - timeshift) <= 0.5) then
 					return MasterBlaster.SpellList["Crash Lightning"], meleeRange
@@ -242,7 +245,7 @@ MasterBlaster.enhancement = {
 
 		-- sundering if talented and above 70 maelstrom
 		if MasterBlaster.talents[6] == 3 then
-			if (UnitPower("player",11) >= 70) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Sundering"],spellInCast,nextSpell1,nextSpell2)) then
+			if (currentMaelstrom >= 70) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Sundering"],spellInCast,nextSpell1,nextSpell2)) then
 				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Sundering"])
 				if ((d - timeshift) <= 0.5) then
 					return MasterBlaster.SpellList["Sundering"], meleeRange
@@ -251,7 +254,7 @@ MasterBlaster.enhancement = {
 		end
 
 		-- lava lash if above 80 maelstrom
-		if (UnitPower("player",11) >= 80) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Lava Lash"],spellInCast,nextSpell1,nextSpell2)) then
+		if (currentMaelstrom >= 80) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Lava Lash"],spellInCast,nextSpell1,nextSpell2)) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Lava Lash"])
 			if ((d - timeshift) <= 0.5) then
 				return MasterBlaster.SpellList["Lava Lash"], meleeRange

@@ -98,6 +98,9 @@ MasterBlaster.balance = {
 			sunfireDuration = 0
 		end
 
+		-- get unit power
+		local currentAstralPower = UnitPower("player", 8)
+
 		-- get new moon charges and adjust charges based on how far in the future the adivser goes
 		local newMoonCharges, _, cooldownStart, cooldownLength = GetSpellCharges(MasterBlaster.SpellList["New Moon"]);
 		newMoonCharges = newMoonCharges - MasterBlaster:Count(MasterBlaster.SpellList["New Moon"], spellInCast,nextSpell1,nextSpell2);
@@ -137,7 +140,7 @@ MasterBlaster.balance = {
 		-- use our new moon charges, but be careful to not cap astral power,
 		-- and don't suggest more new moons in queue than we have charges for
 		local totalNewMoonsInQueue = MasterBlaster:Count(MasterBlaster.SpellList["New Moon"],spellInCast,nextSpell1,nextSpell2)
-		if (newMoonCharges > 0) and (totalNewMoonsInQueue < newMoonCharges) and (UnitPower("player",8) < 70) and MasterBlaster:SpellAvailable(MasterBlaster.SpellList["New Moon"]) then
+		if (newMoonCharges > 0) and (totalNewMoonsInQueue < newMoonCharges) and (currentAstralPower < 70) and MasterBlaster:SpellAvailable(MasterBlaster.SpellList["New Moon"]) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["New Moon"])
 			if (d - timeshift) <= 0.5 then
 				return MasterBlaster.SpellList["New Moon"]
@@ -172,7 +175,6 @@ MasterBlaster.balance = {
 		end
 
 		-- consume astral power with starsurge(s), but be careful not to go over lunar or solar empowerment charges
-		local currentAstralPower= UnitPower("player", 8)
 		local totalStarsurgesInQueue = MasterBlaster:Count(MasterBlaster.SpellList["Starsurge"],spellInCast,nextSpell1,nextSpell2)
 		if (currentAstralPower > (totalStarsurgesInQueue * 40)) and (lunarEmpowermentCharges < 3) and (solarEmpowermentCharges < 3) then
 			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Starsurge"]) then
@@ -308,7 +310,7 @@ MasterBlaster.balance = {
 		local d
 
 		-- starfall if we have the astral power and there are more than 3 targets
-		if (MasterBlaster.person["foeCount"] >= 3) and (UnitPower("player",8) > 60) then
+		if (MasterBlaster.person["foeCount"] >= 3) and (UnitPower("player", 8) > 60) then
 			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Starfall"]) then
 				return MasterBlaster.SpellList["Starfall"]
 			end

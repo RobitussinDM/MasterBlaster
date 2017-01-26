@@ -96,6 +96,9 @@ MasterBlaster.elemental = {
 			flameShockDuration = 0
 		end
 
+		-- get unit power variables
+		local currentMaelstrom = UnitPower("player", 11)
+
 		-- get lava burst charges and adjust charges based on how far in the future the adivser goes
 		local lavaBurstCharges, _, cooldownStart, cooldownLength = GetSpellCharges(MasterBlaster.SpellList["Lava Burst"]);
 		lavaBurstCharges = lavaBurstCharges - MasterBlaster:Count(MasterBlaster.SpellList["Lava Burst"], spellInCast,nextSpell1,nextSpell2);
@@ -154,7 +157,7 @@ MasterBlaster.elemental = {
 		end
 
 		-- earth shock if maelstrom capped
-		if (UnitPower("player",11) >= 100) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earth Shock"],spellInCast,nextSpell1,nextSpell2)) then
+		if (currentMaelstrom >= 100) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earth Shock"],spellInCast,nextSpell1,nextSpell2)) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Earth Shock"])
 			if ((d - timeshift) <= 0.5) then
 				return MasterBlaster.SpellList["Earth Shock"]
@@ -163,7 +166,7 @@ MasterBlaster.elemental = {
 		
 		-- icefury if talented and maelstrom <= 70
 		if MasterBlaster.talents[7] == 3 then
-			if (UnitPower("player",11) < 70) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Icefury"],spellInCast,nextSpell1,nextSpell2)) then
+			if (currentMaelstrom < 70) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Icefury"],spellInCast,nextSpell1,nextSpell2)) then
 				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Icefury"])
 				if ((d - timeshift) <= 0.5) then
 					return MasterBlaster.SpellList["Icefury"]
@@ -197,14 +200,14 @@ MasterBlaster.elemental = {
 		end
 
 		-- flame shock if maelstrom > 20 and the flame shock debuff has < 9 seconds left
-		if (UnitPower("player",11) >= 20) and ((flameShockExpiration - currentTime - timeshift) < 9) then
+		if (currentMaelstrom >= 20) and ((flameShockExpiration - currentTime - timeshift) < 9) then
 			if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Flame Shock"],spellInCast,nextSpell1,nextSpell2) then
 				return MasterBlaster.SpellList["Flame Shock"]
 			end
 		end
 		
 		-- earth shock if maelstrom > 90
-		if (UnitPower("player",11) >= 90) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earth Shock"],spellInCast,nextSpell1,nextSpell2)) then
+		if (currentMaelstrom >= 90) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earth Shock"],spellInCast,nextSpell1,nextSpell2)) then
 			return MasterBlaster.SpellList["Earth Shock"]
 		end
 
@@ -212,7 +215,6 @@ MasterBlaster.elemental = {
 		if MasterBlaster.talents[7] == 3 then
 			local hasIcefuryBuff, _, _, charges = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Icefury"])
 			if (hasIcefuryBuff ~= nil) then
-				local currentMaelstrom = UnitPower("player",11)
 				local totalFrostShocksInQueue = MasterBlaster:Count(MasterBlaster.SpellList["Frost Shock"],spellInCast,nextSpell1,nextSpell2)
 				if currentMaelstrom > (totalFrostShocksInQueue * 20) then
 					if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Frost Shock"]) then
@@ -377,7 +379,10 @@ MasterBlaster.elemental = {
 			-- always use liquid magma totem if available
 			if MasterBlaster.talents[6] == 1 then
 				if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Liquid Magma Totem"]) then
-					return MasterBlaster.SpellList["Liquid Magma Totem"]
+					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Liquid Magma Totem"])
+					if d <= 0.5 then
+						return MasterBlaster.SpellList["Liquid Magma Totem"]
+					end
 				end
 			end
 
