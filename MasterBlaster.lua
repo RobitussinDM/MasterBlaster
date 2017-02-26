@@ -4,7 +4,7 @@ MasterBlaster = {Locals = {}}
 local L = MasterBlaster.Locals
 
 -- variables to save game state
-MasterBlaster.versionNumber = '0.6';
+MasterBlaster.versionNumber = '0.8';
 MasterBlaster.enabled = true;
 MasterBlaster.playerName = UnitName("player");
 MasterBlaster.playerGUID = UnitGUID("player");
@@ -28,6 +28,7 @@ MasterBlaster.inParty = 0;
 MasterBlaster.spec = "";  -- name of the specialization 
 MasterBlaster.specUnsure = true;
 MasterBlaster.meleeSpec = false;
+MasterBlaster.unitPowerEnabled = true;
 MasterBlaster.lastSpell = ""
 MasterBlaster.lastCastTime = 0
 -- spells available to multiple modules
@@ -323,14 +324,17 @@ function MasterBlaster:detectSpecialization()
 			spec = "elemental"
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = true;
 		elseif (activeSpec == 2) then
 			spec = "enhancement"
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = true;
+			MasterBlaster.unitPowerEnabled = true;
 		else
 			spec = ""
 			MasterBlaster.enabled = false;
 			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = false;
 			return;
 		end
 	elseif playerClass == "DRUID" then
@@ -338,10 +342,12 @@ function MasterBlaster:detectSpecialization()
 			spec = "balance"
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = true;
 		else
 			spec = ""
 			MasterBlaster.enabled = false;
 			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = false;
 			return;
 		end
 	elseif playerClass == "DEATHKNIGHT" then
@@ -349,10 +355,25 @@ function MasterBlaster:detectSpecialization()
 			spec = "frost_dk"
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = true;
+			MasterBlaster.unitPowerEnabled = true;
 		else
 			spec = ""
 			MasterBlaster.enabled = false;
 			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = false;
+			return;
+		end
+	elseif playerClass == "MAGE" then
+		if (activeSpec == 3) then
+			spec = "frost_mage"
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = false;
+		else
+			spec = ""
+			MasterBlaster.enabled = false;
+			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = false;
 			return;
 		end
 	else
@@ -572,12 +593,30 @@ function MasterBlaster:hasTotem(unit, spellName)
 	end
 end
 
+-- see if you have a pet with a pet bar out
+function MasterBlaster:hasPet()
+	local numberOfSpells = HasPetSpells();
+	if (numberOfSpells == nil) then
+		numberOfSpells = 0
+	end
+	return (numberOfSpells > 0)
+end
+
 -- determine if a spell is available
 function MasterBlaster:SpellAvailable(spell)
 	if (not spell) then
 		return false
 	end
 	if (IsUsableSpell(spell)) then
+		return true
+	else
+		return false
+	end
+end
+
+function MasterBlaster:PetSpellAvailable(index)
+	local cooldownStarted = GetPetActionCooldown(index)
+	if (cooldownStarted == 0) then
 		return true
 	else
 		return false
@@ -733,36 +772,39 @@ end
 
 -- show the current power(maelstrom, fury, etc) as a % of maximum
 function MasterBlaster:ShowUnitPower(...)
-	local guid = UnitGUID("target")
-	if  (UnitName("target") == nil) or (not UnitCanAttack("player","target")) or (UnitHealth("target") == 0) then
-		guid = nil
-	end
-
-	if (UnitInVehicle("player") and HasVehicleActionBar()) or UnitOnTaxi("player") or ((guid == nil) or (UnitHealth("target") == 0)) then
-		-- player is in a "vehicle" or has no target
-		MasterBlaster.textList["power"]:SetText("")
-		return
-	end
-
-	local powerTypeIndex = UnitPowerType("player")
-	if not powerTypeIndex then return end
-
-	-- get the unit power per element (for example per burning ember)
-	local currentPower = UnitPower("player", powerTypeIndex)
-	local maxPower = UnitPowerMax("player", powerTypeIndex)
-
-	-- show as a percentage
-	if ((maxPower == nil) and (currentPower == nil)) then
-		MasterBlaster.textList["power"]:SetText("")
-	else
-		local powerPercent = (currentPower/maxPower) * 100
-		local displayText = ""
-		if (powerPercent < 80) then
-			displayText = format("%.f",powerPercent) .. " %"
-		else
-			displayText = "|cffff0000" .. format("%.f",powerPercent) .. " %|r"
+	-- doesn't make sense for all specs
+	if MasterBlaster.unitPowerEnabled then
+		local guid = UnitGUID("target")
+		if  (UnitName("target") == nil) or (not UnitCanAttack("player","target")) or (UnitHealth("target") == 0) then
+			guid = nil
 		end
-		MasterBlaster.textList["power"]:SetText(displayText)
+
+		if (UnitInVehicle("player") and HasVehicleActionBar()) or UnitOnTaxi("player") or ((guid == nil) or (UnitHealth("target") == 0)) then
+			-- player is in a "vehicle" or has no target
+			MasterBlaster.textList["power"]:SetText("")
+			return
+		end
+
+		local powerTypeIndex = UnitPowerType("player")
+		if not powerTypeIndex then return end
+
+		-- get the unit power per element (for example per burning ember)
+		local currentPower = UnitPower("player", powerTypeIndex)
+		local maxPower = UnitPowerMax("player", powerTypeIndex)
+
+		-- show as a percentage
+		if ((maxPower == nil) and (currentPower == nil)) then
+			MasterBlaster.textList["power"]:SetText("")
+		else
+			local powerPercent = (currentPower/maxPower) * 100
+			local displayText = ""
+			if (powerPercent < 80) then
+				displayText = format("%.f",powerPercent) .. " %"
+			else
+				displayText = "|cffff0000" .. format("%.f",powerPercent) .. " %|r"
+			end
+			MasterBlaster.textList["power"]:SetText(displayText)
+		end
 	end
 end
 

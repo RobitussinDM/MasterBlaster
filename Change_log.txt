@@ -25,3 +25,7 @@ Added a frost module for dks
 Modified the frost module for dks - still no breath of sindragosa rotation support
 Elemental AoE will no longer recommend Liquid Magma Totem if it is on cooldown
 Minor code housekeeping
+
+**0.8**
+Moved stormkeeper to a major cooldown and out of the primary rotation for elemental
+Added a simple frost mage module (water jet will not be recommended, need to figure that out)

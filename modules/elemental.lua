@@ -224,14 +224,6 @@ MasterBlaster.elemental = {
 			end
 		end
 
-		-- stormkeeper if available
-		if (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Stormkeeper"],spellInCast,nextSpell1,nextSpell2)) then
-			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Stormkeeper"])
-			if ((d - timeshift) <= 0.5) then
-				return MasterBlaster.SpellList["Stormkeeper"]
-			end
-		end
-
 		-- lightning bolt as filler
 		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Lightning Bolt"])then
 			return MasterBlaster.SpellList["Lightning Bolt"]
@@ -349,6 +341,14 @@ MasterBlaster.elemental = {
 				if d <= MasterBlaster.lastBaseGCD then
 					return MasterBlaster.SpellList["Elemental Mastery"]
 				end
+			end
+		end
+
+		-- stormkeeper if available
+		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Stormkeeper"]) then
+			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Stormkeeper"])
+			if d <= MasterBlaster.lastBaseGCD then
+				return MasterBlaster.SpellList["Stormkeeper"]
 			end
 		end
 	
