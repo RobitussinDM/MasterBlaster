@@ -66,7 +66,7 @@ MasterBlaster.frost_dk = {
 				spellInCast = MasterBlaster.lastSpell
 			end
 
-			-- no spell in cast, check global cd via Ghost Wolf
+			-- no spell in cast, check global cd via Howling Blast
 			if (MasterBlaster.SpellList["Howling Blast"]) then
 				local globalCooldown = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Howling Blast"])
 				if (globalCooldown) then
@@ -188,7 +188,7 @@ MasterBlaster.frost_dk = {
 		-- no particular category
 		local d
 
-		-- free death strike from dark Succor
+		-- free death strike from dark succor
 		name = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Dark Succor Buff"])
 		if (name ~= nil) then
 			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Death Strike"]) then
@@ -216,13 +216,13 @@ MasterBlaster.frost_dk = {
 		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Mind Freeze"]) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Mind Freeze"])
 			if ((IsSpellInRange(MasterBlaster.SpellList["Mind Freeze"], "target") == 1) and (d) and (d < 0.5)) then
-				--- windshear to interupt channel spell
+				--- mind freeze to interupt channel spell
 				_, _, _, _, _, _, _, notInterruptible = UnitChannelInfo("target")
 				if (notInterruptible == false) then
 					return MasterBlaster.SpellList["Mind Freeze"]
 				end
 
-				--- windshear to interupt cast spell
+				--- mind freeze to interupt cast spell
 				_, _, _, _, _, _, _, _, notInterruptible = UnitCastingInfo("target")
 				if (notInterruptible == false)  then
 					return MasterBlaster.SpellList["Mind Freeze"]

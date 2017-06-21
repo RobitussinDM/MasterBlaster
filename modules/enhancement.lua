@@ -87,28 +87,12 @@ MasterBlaster.enhancement = {
 		-- get unit power variables
 		local currentMaelstrom = UnitPower("player", 11)
 
-		-- boulderfist to start if talented
+		-- keep rockbiter up (if landslide talented)
 		if MasterBlaster.talents[1] == 3 then
-			local boulderfistCharges, _, cooldownStart, cooldownLength = GetSpellCharges(MasterBlaster.SpellList["Boulderfist"]);
-			boulderfistCharges = boulderfistCharges - MasterBlaster:Count(MasterBlaster.SpellList["Boulderfist"], spellInCast,nextSpell1,nextSpell2);
-			if (((cooldownStart + cooldownLength)- currentTime) - timeshift <= 0) then
-				boulderfistCharges = boulderfistCharges + 1
-			end
-
-			-- keep boulderfist up
-			if (not MasterBlaster:hasBuff("player", MasterBlaster.SpellList["Boulderfist Buff"])) then
-				if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Boulderfist"],spellInCast,nextSpell1,nextSpell2) then
-					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Boulderfist"])
+			if (not MasterBlaster:hasBuff("player", MasterBlaster.SpellList["Landslide Buff"])) then
+				if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Rockbiter"],spellInCast,nextSpell1,nextSpell2) then
+					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Rockbiter"])
 					if ((d - timeshift) <= 0.5) then
-						return MasterBlaster.SpellList["Boulderfist"], meleeRange
-					end
-				end
-			end
-		else
-			-- if not using boulderfist, make sure rockbiter is up when using landslide
-			if MasterBlaster.talents[7] == 2 then
-				if (not MasterBlaster:hasBuff("player", MasterBlaster.SpellList["Landslide Buff"])) then
-					if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Rockbiter"],spellInCast,nextSpell1,nextSpell2) then
 						return MasterBlaster.SpellList["Rockbiter"], meleeRange
 					end
 				end
@@ -134,14 +118,6 @@ MasterBlaster.enhancement = {
 				if ((d - timeshift) <= 0.5) then
 					return MasterBlaster.SpellList["Fury of Air"], meleeRange
 				end
-			end
-		end
-
-		-- doom winds
-		if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Doom Winds"],spellInCast,nextSpell1,nextSpell2) and MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Doom Winds"]) then
-			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Doom Winds"])
-			if ((d - timeshift) <= 0.5) then
-				return MasterBlaster.SpellList["Doom Winds"], meleeRange
 			end
 		end
 
@@ -219,20 +195,6 @@ MasterBlaster.enhancement = {
 			end
 		end
 
-		-- boulderfist if talented and at 2 charges within adviser future
-		-- calculation is done above
-		if MasterBlaster.talents[1] == 3 then
-			if boulderfistCharges == 2 then
-				if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Boulderfist"],spellInCast,nextSpell1,nextSpell2) then
-					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Boulderfist"])
-					if ((d - timeshift) <= 0.5) then
-						return MasterBlaster.SpellList["Boulderfist"], meleeRange
-					end
-				end
-			end
-		end
-
-
 		-- crash lightning if crashing storm talented and above 80 maelstrom
 		if MasterBlaster.talents[6] == 1 then
 			if (currentMaelstrom >= 80) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Crash Lightning"],spellInCast,nextSpell1,nextSpell2)) then
@@ -253,21 +215,21 @@ MasterBlaster.enhancement = {
 			end
 		end
 
-		-- lava lash if above 80 maelstrom
-		if (currentMaelstrom >= 80) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Lava Lash"],spellInCast,nextSpell1,nextSpell2)) then
+		-- lava lash if above 40 maelstrom
+		if (currentMaelstrom >= 40) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Lava Lash"],spellInCast,nextSpell1,nextSpell2)) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Lava Lash"])
 			if ((d - timeshift) <= 0.5) then
 				return MasterBlaster.SpellList["Lava Lash"], meleeRange
 			end
 		end
 
-		-- boulderfist / flametongue if nothing else availabe if boulderfist talented
+		-- rockbiter / flametongue if nothing else availabe
 		if MasterBlaster.talents[1] == 3 then
-			-- boulderfist first
-			if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Boulderfist"],spellInCast,nextSpell1,nextSpell2) then
-				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Boulderfist"])
+			-- rockbiter first
+			if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Rockbiter"],spellInCast,nextSpell1,nextSpell2) then
+				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Rockbiter"])
 				if ((d - timeshift) <= 0.5) then
-					return MasterBlaster.SpellList["Boulderfist"], meleeRange
+					return MasterBlaster.SpellList["Rockbiter"], meleeRange
 				end
 			end
 
@@ -278,9 +240,6 @@ MasterBlaster.enhancement = {
 					return MasterBlaster.SpellList["Flametongue"], meleeRange
 				end
 			end
-		else
-			-- otherwise rockbiter as filler
-			return MasterBlaster.SpellList["Rockbiter"], meleeRange
 		end
 
 		-- if we made it this far and found nothing to cast, rip
@@ -358,6 +317,14 @@ MasterBlaster.enhancement = {
 				if d <= MasterBlaster.lastBaseGCD then
 					return MasterBlaster.SpellList["Ascendance"]
 				end
+			end
+		end
+
+		-- doom winds
+		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Doom Winds"]) then
+			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Doom Winds"])
+			if d <= MasterBlaster.lastBaseGCD then
+				return MasterBlaster.SpellList["Doom Winds"]
 			end
 		end
 

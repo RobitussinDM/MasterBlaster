@@ -26,6 +26,14 @@ Modified the frost module for dks - still no breath of sindragosa rotation suppo
 Elemental AoE will no longer recommend Liquid Magma Totem if it is on cooldown
 Minor code housekeeping
 
-**0.8**
+**v0.8**
 Moved stormkeeper to a major cooldown and out of the primary rotation for elemental
 Added a simple frost mage module (water jet will not be recommended, need to figure that out)
+
+**v0.9**
+Added support for maelstrom going to 125 with the new 7.2 traits for elemental
+Added a simple blood dk module
+
+**v0.10**
+Changed up the enhancement module a bit for 7.2.5
+Fixed some erroneous comments

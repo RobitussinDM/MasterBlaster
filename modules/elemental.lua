@@ -98,6 +98,7 @@ MasterBlaster.elemental = {
 
 		-- get unit power variables
 		local currentMaelstrom = UnitPower("player", 11)
+		local maximumMaelstrom = UnitPowerMax("player", 11)
 
 		-- get lava burst charges and adjust charges based on how far in the future the adivser goes
 		local lavaBurstCharges, _, cooldownStart, cooldownLength = GetSpellCharges(MasterBlaster.SpellList["Lava Burst"]);
@@ -157,16 +158,16 @@ MasterBlaster.elemental = {
 		end
 
 		-- earth shock if maelstrom capped
-		if (currentMaelstrom >= 100) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earth Shock"],spellInCast,nextSpell1,nextSpell2)) then
+		if (currentMaelstrom >= maximumMaelstrom) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earth Shock"],spellInCast,nextSpell1,nextSpell2)) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Earth Shock"])
 			if ((d - timeshift) <= 0.5) then
 				return MasterBlaster.SpellList["Earth Shock"]
 			end
 		end
 		
-		-- icefury if talented and maelstrom <= 70
+		-- icefury if talented and maelstrom <= (maxiumum maelstrom - 30)
 		if MasterBlaster.talents[7] == 3 then
-			if (currentMaelstrom < 70) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Icefury"],spellInCast,nextSpell1,nextSpell2)) then
+			if (currentMaelstrom < (maximumMaelstrom - 30)) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Icefury"],spellInCast,nextSpell1,nextSpell2)) then
 				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Icefury"])
 				if ((d - timeshift) <= 0.5) then
 					return MasterBlaster.SpellList["Icefury"]
@@ -206,8 +207,8 @@ MasterBlaster.elemental = {
 			end
 		end
 		
-		-- earth shock if maelstrom > 90
-		if (currentMaelstrom >= 90) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earth Shock"],spellInCast,nextSpell1,nextSpell2)) then
+		-- earth shock if maelstrom > (maximumMaelstrom - 10)
+		if (currentMaelstrom >= (maximumMaelstrom - 10)) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earth Shock"],spellInCast,nextSpell1,nextSpell2)) then
 			return MasterBlaster.SpellList["Earth Shock"]
 		end
 
