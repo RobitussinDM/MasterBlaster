@@ -212,6 +212,13 @@ MasterBlaster.elemental = {
 			return MasterBlaster.SpellList["Earth Shock"]
 		end
 
+		-- if we have the aftershock talent, earth shock at 70 and above
+		if MasterBlaster.talents[4] == 1 then
+			if (currentMaelstrom >= 70) and (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Earth Shock"],spellInCast,nextSpell1,nextSpell2)) then
+				return MasterBlaster.SpellList["Earth Shock"]
+			end
+		end
+
 		-- if you have an icefury buff, frost shock if you have > 20 maelstrom
 		if MasterBlaster.talents[7] == 3 then
 			local hasIcefuryBuff, _, _, charges = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Icefury"])

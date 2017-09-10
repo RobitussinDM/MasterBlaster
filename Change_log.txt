@@ -37,3 +37,6 @@ Added a simple blood dk module
 **v0.10**
 Changed up the enhancement module a bit for 7.2.5
 Fixed some erroneous comments
+
+**v0.11**
+Added simple windwalker, assassination and outlaw modules
