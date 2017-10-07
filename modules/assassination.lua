@@ -4,7 +4,7 @@ MasterBlaster:RegisterModule("assassination");
 
 MasterBlaster.assassination = {
 	Initialize = function(self)
-		-- spells available to the frost death knight spec
+		-- spells available to the assassination spec
 		MasterBlaster:LoadSpells({
             ["Deadly Poison"] = GetSpellInfo(2823),
             ["Detection"] = GetSpellInfo(56814),

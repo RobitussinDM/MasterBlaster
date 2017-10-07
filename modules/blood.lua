@@ -4,7 +4,7 @@ MasterBlaster:RegisterModule("blood");
 
 MasterBlaster.blood = {
 	Initialize = function(self)
-		-- spells available to the frost death knight spec
+		-- spells available to the blood death knight spec
 		MasterBlaster:LoadSpells({
             ["Anti-Magic Shell"] = GetSpellInfo(48707),
             ["Asphxiate"] = GetSpellInfo(221562),

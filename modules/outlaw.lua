@@ -4,7 +4,7 @@ MasterBlaster:RegisterModule("outlaw");
 
 MasterBlaster.outlaw = {
 	Initialize = function(self)
-		-- spells available to the frost death knight spec
+		-- spells available to the outlaw spec
 		MasterBlaster:LoadSpells({
             ["Adrenaline Rush"] = GetSpellInfo(13750),
             ["Blade Flurry"] = GetSpellInfo(13877),

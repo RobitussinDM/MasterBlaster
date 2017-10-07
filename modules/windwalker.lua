@@ -4,7 +4,7 @@ MasterBlaster:RegisterModule("windwalker");
 
 MasterBlaster.windwalker = {
 	Initialize = function(self)
-		-- spells available to the frost death knight spec
+		-- spells available to the windwalker spec
 		MasterBlaster:LoadSpells({
             ["Blackout Kick"] = GetSpellInfo(100784),
             ["Blackout Kick Buff"] = GetSpellInfo(116768),

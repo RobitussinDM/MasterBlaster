@@ -40,3 +40,6 @@ Fixed some erroneous comments
 
 **v0.11**
 Added simple windwalker, assassination and outlaw modules
+
+**v0.12**
+Added simple shadow and havoc modules
