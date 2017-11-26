@@ -4,7 +4,7 @@ MasterBlaster = {Locals = {}}
 local L = MasterBlaster.Locals
 
 -- variables to save game state
-MasterBlaster.versionNumber = '0.12';
+MasterBlaster.versionNumber = '0.13';
 MasterBlaster.enabled = true;
 MasterBlaster.playerName = UnitName("player");
 MasterBlaster.playerGUID = UnitGUID("player");
@@ -34,7 +34,6 @@ MasterBlaster.lastCastTime = 0
 -- spells available to multiple modules
 MasterBlaster.SpellList = {
 	-- racials are available across specs
-	["Arcane Torrent"] = GetSpellInfo(202719), -- blood elf racial
 	["Berserking"] = GetSpellInfo(26297),	-- troll racial
 	["Blood Fury"] = GetSpellInfo(33697),	-- orc racial
 }
@@ -362,6 +361,11 @@ function MasterBlaster:detectSpecialization()
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = true;
 			MasterBlaster.unitPowerEnabled = true;
+		elseif (activeSpec == 2) then
+			spec = "vengeance"
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = true;
+			MasterBlaster.unitPowerEnabled = true;
 		else
 			spec = ""
 			MasterBlaster.enabled = false;
@@ -375,6 +379,19 @@ function MasterBlaster:detectSpecialization()
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = false;
 			MasterBlaster.unitPowerEnabled = true;
+		else
+			spec = ""
+			MasterBlaster.enabled = false;
+			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = false;
+			return;
+		end
+	elseif playerClass == "HUNTER" then
+		if (activeSpec == 1) then
+			spec = "beast_mastery"
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = false;
 		else
 			spec = ""
 			MasterBlaster.enabled = false;
@@ -398,6 +415,19 @@ function MasterBlaster:detectSpecialization()
 	elseif playerClass == "MONK" then
 		if (activeSpec == 3) then
 			spec = "windwalker"
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = true;
+			MasterBlaster.unitPowerEnabled = true;
+		else
+			spec = ""
+			MasterBlaster.enabled = false;
+			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = false;
+			return;
+		end
+	elseif playerClass == "PALADIN" then
+		if (activeSpec == 2) then
+			spec = "protection_pal"
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = true;
 			MasterBlaster.unitPowerEnabled = true;

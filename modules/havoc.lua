@@ -6,11 +6,13 @@ MasterBlaster.havoc = {
 	Initialize = function(self)
 		-- spells available to the havoc demon hunter spec
 		MasterBlaster:LoadSpells({
-            ["Annihilation"] = GetSpellInfo(201427),
+			["Annihilation"] = GetSpellInfo(201427),
+			["Arcane Torrent"] = GetSpellInfo(202719),
             ["Auto Attack"] = GetSpellInfo(6603),
             ["Blade Dance"] = GetSpellInfo(188499),
             ["Chaos Blades"] = GetSpellInfo(211048),
-            ["Chaos Strike"] = GetSpellInfo(162794),
+			["Chaos Strike"] = GetSpellInfo(162794),
+			["Consume Magic"] = GetSpellInfo(183752),
 			["Death Sweep"] = GetSpellInfo(210152),
 			["Demon's Bite"] = GetSpellInfo(162243),
             ["Eye Beam"] = GetSpellInfo(198013),
@@ -174,13 +176,13 @@ MasterBlaster.havoc = {
 		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Consume Magic"]) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Consume Magic"])
 			if ((IsSpellInRange(MasterBlaster.SpellList["Consume Magic"], "target") == 1) and (d) and (d < 0.5)) then
-				--- mind freeze to interupt channel spell
+				--- consume magic to interupt channel spell
 				_, _, _, _, _, _, _, notInterruptible = UnitChannelInfo("target")
 				if (notInterruptible == false) then
 					return MasterBlaster.SpellList["Consume Magic"]
 				end
 
-				--- mind freeze to interupt cast spell
+				--- consume magic to interupt cast spell
 				_, _, _, _, _, _, _, _, notInterruptible = UnitCastingInfo("target")
 				if (notInterruptible == false)  then
 					return MasterBlaster.SpellList["Consume Magic"]
@@ -191,13 +193,13 @@ MasterBlaster.havoc = {
         if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Arcane Torrent"]) then
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Arcane Torrent"])
 			if ((IsSpellInRange(MasterBlaster.SpellList["Arcane Torrent"], "target") == 1) and (d) and (d < 0.5)) then
-				--- mind freeze to interupt channel spell
+				--- arcane torrent to interupt channel spell
 				_, _, _, _, _, _, _, notInterruptible = UnitChannelInfo("target")
 				if (notInterruptible == false) then
 					return MasterBlaster.SpellList["Arcane Torrent"]
 				end
 
-				--- mind freeze to interupt cast spell
+				--- arcane torrent to interupt cast spell
 				_, _, _, _, _, _, _, _, notInterruptible = UnitCastingInfo("target")
 				if (notInterruptible == false)  then
 					return MasterBlaster.SpellList["Arcane Torrent "]
@@ -210,17 +212,9 @@ MasterBlaster.havoc = {
 
 	MajorSpell = function(self)
 		-- major dps cooldowns
-        local d, name
-
-        -- fury of the illidari
-		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Fury of the Illidari"]) then
-			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Fury of the Illidari"])
-			if d <= MasterBlaster.lastBaseGCD then
-				return MasterBlaster.SpellList["Fury of the Illidari"]
-			end
-		end
-        
-        -- nemesis if talented
+		local d, name
+		
+		-- nemesis if talented
         if MasterBlaster.talents[5] == 3 then
 			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Nemesis"]) then
                 d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Nemesis"])
@@ -228,6 +222,14 @@ MasterBlaster.havoc = {
                     return MasterBlaster.SpellList["Nemesis"]
                 end
             end
+		end
+
+        -- fury of the illidari
+		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Fury of the Illidari"]) then
+			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Fury of the Illidari"])
+			if d <= MasterBlaster.lastBaseGCD then
+				return MasterBlaster.SpellList["Fury of the Illidari"]
+			end
 		end
 
 		-- metamorphosis, but only if you have at least 80 fury

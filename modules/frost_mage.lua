@@ -222,7 +222,7 @@ MasterBlaster.frost_mage = {
             (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Frostbolt"],spellInCast,nextSpell1,nextSpell2)
         ) then
             if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Frostbolt"]) then
-                return MasterBlaster.SpellList["Frostbolt"], icon, charges
+                return MasterBlaster.SpellList["Frostbolt"]
             end
         end
 

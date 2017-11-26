@@ -112,10 +112,12 @@ MasterBlaster.shadow = {
             end
         end
 
-		-- shadow word: pain if not on the target
-		if (swpDebuff == nil) then
-			if (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Shadow Word: Pain"],spellInCast,nextSpell1,nextSpell2)) then
-				return MasterBlaster.SpellList["Shadow Word: Pain"]
+		-- shadow word: pain if not on the target and not talented into misery
+		if MasterBlaster.talents[6] ~= 2 then
+			if (swpDebuff == nil) then
+				if (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Shadow Word: Pain"],spellInCast,nextSpell1,nextSpell2)) then
+					return MasterBlaster.SpellList["Shadow Word: Pain"]
+				end
 			end
 		end
 
