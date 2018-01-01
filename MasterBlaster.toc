@@ -2,11 +2,11 @@
 ## Title: MasterBlaster
 ## Notes: Spell rotation helper
 ## Author: Bovophiliac, based on original work done by Taracque, Felmosórongy of Arathor (Elementarist from https://mods.curse.com/addons/wow/elementarist)
-## Version: 0.13
+## Version: 0.14
 ## SavedVariables: MasterBlasterDB
 ## OptionalDeps:
 ## Dependencies: 
-## X-Curse-Packaged-Version: 0.13
+## X-Curse-Packaged-Version: 0.14
 ## X-Curse-Project-Name: MasterBlaster
 ## X-Curse-Project-ID: MasterBlaster
 ## X-Curse-Repository-ID: wow/MasterBlaster/mainline
@@ -29,3 +29,5 @@ modules\havoc.lua
 modules\vengeance.lua
 modules\beast_mastery.lua
 modules\protection_pal.lua
+modules\affliction.lua
+modules\fury.lua

@@ -391,7 +391,7 @@ function MasterBlaster:detectSpecialization()
 			spec = "beast_mastery"
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = false;
-			MasterBlaster.unitPowerEnabled = false;
+			MasterBlaster.unitPowerEnabled = true;
 		else
 			spec = ""
 			MasterBlaster.enabled = false;
@@ -430,7 +430,7 @@ function MasterBlaster:detectSpecialization()
 			spec = "protection_pal"
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = true;
-			MasterBlaster.unitPowerEnabled = true;
+			MasterBlaster.unitPowerEnabled = false;
 		else
 			spec = ""
 			MasterBlaster.enabled = false;
@@ -459,6 +459,32 @@ function MasterBlaster:detectSpecialization()
 			MasterBlaster.unitPowerEnabled = true;
 		elseif (activeSpec == 2) then
 			spec = "outlaw"
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = true;
+			MasterBlaster.unitPowerEnabled = true;
+		else
+			spec = ""
+			MasterBlaster.enabled = false;
+			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = false;
+			return;
+		end
+	elseif playerClass == "WARLOCK" then
+		if (activeSpec == 1) then
+			spec = "affliction"
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = false;
+		else
+			spec = ""
+			MasterBlaster.enabled = false;
+			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = false;
+			return;
+		end
+	elseif playerClass == "WARRIOR" then
+		if (activeSpec == 2) then
+			spec = "fury"
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = true;
 			MasterBlaster.unitPowerEnabled = true;

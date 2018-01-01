@@ -47,3 +47,6 @@ Added simple shadow and havoc modules
 **v0.13**
 Tweaked the shadow and havoc modules
 Added simple vengeance, beast mastery and protection paladin modules
+
+**v0.14**
+Added simple affliction and fury modules
