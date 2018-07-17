@@ -10,12 +10,14 @@ MasterBlaster.affliction = {
 			["Corruption"] = GetSpellInfo(172),
 			["Devour Magic"] = GetSpellInfo(19505),
 			["Drain Soul"] = GetSpellInfo(198590),
+			["Reap Souls"] = GetSpellInfo(216698),
 			["Seed of Corruption"] = GetSpellInfo(27243),
 			["Soul Harvest"] = GetSpellInfo(196098),
 			["Spell Lock"] = GetSpellInfo(19647),
             ["Summon Felhunter"] = GetSpellInfo(691),
             ["Summon Doomguard"] = GetSpellInfo(18540),
-            ["Summon Infernal"] = GetSpellInfo(1122),
+			["Summon Infernal"] = GetSpellInfo(1122),
+			["Tormented Souls Buff"] = GetSpellInfo(216695),
             ["Unending Breath"] = GetSpellInfo(5697),
 			["Unstable Affliction"] = GetSpellInfo(30108)
 		});
@@ -111,11 +113,18 @@ MasterBlaster.affliction = {
 			end
 		end
 
+		-- refresh agony if it has less than 4 seconds left
+		if ((agonyExpiration - currentTime - timeshift) < 4) then
+			if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Agony"],spellInCast,nextSpell1,nextSpell2) then
+				return MasterBlaster.SpellList["Agony"]
+			end
+		end
+
 	   -- unstable affliction if we have 4+ soul shards
 	   if (currentSoulShards >= 4) then
-		if (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Unstable Affliction"],spellInCast,nextSpell1,nextSpell2)) then
-			return MasterBlaster.SpellList["Unstable Affliction"]
-		end
+			if (MasterBlaster:ZeroCount(MasterBlaster.SpellList["Unstable Affliction"],spellInCast,nextSpell1,nextSpell2)) then
+				return MasterBlaster.SpellList["Unstable Affliction"]
+			end
 	   end
 
 		-- drain soul as filler
@@ -129,6 +138,16 @@ MasterBlaster.affliction = {
 	MiscSpell = function(self)
 		-- no particular category
 		local d
+
+		-- show tormented souls charges
+		name, _, icon, charges = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Tormented Souls Buff"])
+		if (name ~= nil) then
+			if (charges > 2) then
+				if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Reap Souls"]) then
+					return MasterBlaster.SpellList["Reap Souls"], icon, charges
+				end
+			end
+		end
 
 		return ""
 	end;
@@ -166,6 +185,22 @@ MasterBlaster.affliction = {
 			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Soul Harvest"])
 			if d <= MasterBlaster.lastBaseGCD then
 				return MasterBlaster.SpellList["Soul Harvest"]
+			end
+		end
+
+		-- berserking
+		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Berserking"]) then
+			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Berserking"])
+			if d <= MasterBlaster.lastBaseGCD then
+				return MasterBlaster.SpellList["Berserking"]
+			end
+		end
+	
+		-- blood fury
+		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Blood Fury"]) then
+			d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Blood Fury"])
+			if d <= MasterBlaster.lastBaseGCD then
+				return MasterBlaster.SpellList["Blood Fury"]
 			end
 		end
 

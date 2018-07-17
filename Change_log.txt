@@ -50,3 +50,7 @@ Added simple vengeance, beast mastery and protection paladin modules
 
 **v0.14**
 Added simple affliction and fury modules
+
+**v0.15**
+Updated affliction module
+Added simple arms, retribution, guardian, feral and arcane modules

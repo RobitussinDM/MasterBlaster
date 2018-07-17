@@ -17,7 +17,8 @@ MasterBlaster.assassination = {
             ["Marked for Death"] = GetSpellInfo(137619),
             ["Mutilate"] = GetSpellInfo(1329),
             ["Poisoned Knife"] = GetSpellInfo(185565),
-            ["Rupture"] = GetSpellInfo(1943),
+			["Rupture"] = GetSpellInfo(1943),
+			["Toxic Blade"] = GetSpellInfo(245388),
             ["Vendetta"] = GetSpellInfo(79140)
 		});
 	end;
@@ -130,6 +131,18 @@ MasterBlaster.assassination = {
                 if ((d - timeshift) <= 0.5) then
                     return MasterBlaster.SpellList["Garrote"], meleeRange
                 end
+			end
+		end
+
+		-- toxic blade on cooldown, but not if rupture needs to be applied soon and if we have lots of combo points for envenom
+		if MasterBlaster.talents[6] == 1 then
+			if ((ruptureExpiration - currentTime - timeshift) > 8 and (currentComboPoints >= 4)) then
+				if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Toxic Blade"],spellInCast,nextSpell1,nextSpell2) then
+					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Toxic Blade"])
+					if ((d - timeshift) <= 0.5) then
+						return MasterBlaster.SpellList["Toxic Blade"], meleeRange
+					end
+				end
 			end
 		end
 

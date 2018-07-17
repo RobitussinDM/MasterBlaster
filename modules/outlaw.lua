@@ -6,13 +6,14 @@ MasterBlaster.outlaw = {
 	Initialize = function(self)
 		-- spells available to the outlaw spec
 		MasterBlaster:LoadSpells({
-            ["Adrenaline Rush"] = GetSpellInfo(13750),
+			["Adrenaline Rush"] = GetSpellInfo(13750),
+			["Between the Eyes"] = GetSpellInfo(199804),
             ["Blade Flurry"] = GetSpellInfo(13877),
             ["Broadsides Buff"] = GetSpellInfo(193356),
             ["Buried Treasure Buff"] = GetSpellInfo(199600),
             ["Curse of the Dreadblades"] = GetSpellInfo(202665),
             ["Grand Melee Buff"] = GetSpellInfo(193358),
-            ["Jolly Roger Buff"] = GetSpellInfo(199603),
+            ["Skull and Crossbones Buff"] = GetSpellInfo(199603),
             ["Kick"] = GetSpellInfo(1766),
             ["Loaded Dice Buff"] = GetSpellInfo(238139),
             ["Marked for Death"] = GetSpellInfo(137619),
@@ -20,9 +21,9 @@ MasterBlaster.outlaw = {
             ["Pistol Shot"] = GetSpellInfo(185763),
             ["Roll the Bones"] = GetSpellInfo(193316),
             ["Run Through"] = GetSpellInfo(2098),
-            ["Rupture"] = GetSpellInfo(1943),
+			["Rupture"] = GetSpellInfo(1943),
+			["Ruthless Precision Buff"] = GetSpellInfo(193357),
             ["Saber Slash"] = GetSpellInfo(193315),
-            ["Shark Infested Waters Buff"] = GetSpellInfo(193357),
             ["True Bearing Buff"] = GetSpellInfo(193359),
             ["Vendetta"] = GetSpellInfo(79140)
 		});
@@ -79,16 +80,16 @@ MasterBlaster.outlaw = {
         local rollTheBonesBuffCount = 0
 
         -- get player's roll the bones buff information
-		local sharkInfestedWatersBuff, _, _, _, _, _, sharkInfestedWatersExpires = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Shark Infested Waters Buff"]);
-		if (sharkInfestedWatersBuff == nil) then
-			sharkInfestedWatersExpires = 0
+		local ruthlessPrecisionBuff, _, _, _, _, _, ruthlessPrecisionExpires = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Ruthless Precision Buff"]);
+		if (ruthlessPrecisionBuff == nil) then
+			ruthlessPrecisionExpires = 0
         else
             rollTheBonesBuffCount = rollTheBonesBuffCount + 1
 		end
 
-        local jollyRogerBuff, _, _, _, _, _, jollyRogerExpires = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Jolly Roger Buff"]);
-		if (jollyRogerBuff == nil) then
-			jollyRogerExpires = 0
+        local skullAndCrossbonesBuff, _, _, _, _, _, skullAndCrossbonesExpires = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Skull and Crossbones Buff"]);
+		if (skullAndCrossbonesBuff == nil) then
+			skullAndCrossbonesExpires = 0
         else
             rollTheBonesBuffCount = rollTheBonesBuffCount + 1
 		end
@@ -121,6 +122,9 @@ MasterBlaster.outlaw = {
             rollTheBonesBuffCount = rollTheBonesBuffCount + 1
 		end
 
+		local opportunityBuff = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Opportunity Buff"]);
+		
+
 		-- check if in melee range
 		local meleeRange = (IsSpellInRange(MasterBlaster.SpellList["Saber Slash"], "target") == 1)
 
@@ -128,28 +132,48 @@ MasterBlaster.outlaw = {
 		local currentComboPoints = UnitPower("player", 4)
 		local currentEnergy = UnitPower("player", 3)
 
-        -- roll the bones if we have 5+ combo points and less than 2 buffs
-        if (currentComboPoints >= 5) and (rollTheBonesBuffCount < 2) then
-            if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Roll the Bones"],spellInCast,nextSpell1,nextSpell2) then
-                d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Roll the Bones"])
-                if ((d - timeshift) <= 0.5) then
-                    return MasterBlaster.SpellList["Roll the Bones"], meleeRange
-                end
+		-- roll the bones if we have 5+ combo points and less than 2 buffs, unless one of them is ruthless precision or grand melee
+		if (ruthlessPrecisionExpires == 0) and (grandMeleeExpires == 0) then
+			if (currentComboPoints >= 5) and (rollTheBonesBuffCount < 2) then
+				if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Roll the Bones"],spellInCast,nextSpell1,nextSpell2) then
+					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Roll the Bones"])
+					if ((d - timeshift) <= 0.5) then
+						return MasterBlaster.SpellList["Roll the Bones"], meleeRange
+					end
+				end
 			end
-        end
+		end
 
-        -- run through if we have 5 combo points and 2 roll the bones buffs
-        if (currentComboPoints >= 5) then
-            if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Run Through"],spellInCast,nextSpell1,nextSpell2) then
-                d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Run Through"])
-                if ((d - timeshift) <= 0.5) then
-                    return MasterBlaster.SpellList["Run Through"], meleeRange
-                end
+        -- run through if we have 5 combo points, unless the buff is ruthless precision, then between the eyes
+		if (currentComboPoints >= 5) then
+			if (ruthlessPrecisionExpires > 0) then
+				if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Between the Eyes"],spellInCast,nextSpell1,nextSpell2) then
+					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Between the Eyes"])
+					if ((d - timeshift) <= 0.5) then
+						return MasterBlaster.SpellList["Between the Eyes"], meleeRange
+					end
+				end
+			else
+				if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Run Through"],spellInCast,nextSpell1,nextSpell2) then
+					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Run Through"])
+					if ((d - timeshift) <= 0.5) then
+						return MasterBlaster.SpellList["Run Through"], meleeRange
+					end
+				end
 			end
-        end
+		end
 
-        -- saber slash to generate combo points
-        if (currentComboPoints < 5) then
+        -- saber slash to generate combo points, or use pistol shot with opportunity buff
+		if (currentComboPoints < 5) then
+			if (opportunityBuff ~= nil) then
+				if MasterBlaster:ZeroCount(MasterBlaster.SpellList["Pistol Shot"],spellInCast,nextSpell1,nextSpell2) then
+					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Pistol Shot"])
+					if ((d - timeshift) <= 0.5) then
+						return MasterBlaster.SpellList["Pistol Shot"], meleeRange
+					end
+				end
+			end
+
             d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Saber Slash"])
             if ((d - timeshift) <= 0.5) then
                 return MasterBlaster.SpellList["Saber Slash"], meleeRange
@@ -164,10 +188,10 @@ MasterBlaster.outlaw = {
 		-- no particular category
 		local d
 
-        -- pistol shot with an opportunity buff
-        local opportunityBuff = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Opportunity Buff"]);
-		if (opportunityBuff ~= nil) then
-			return MasterBlaster.SpellList["Pistol Shot"]
+        -- show if blade flurry is active
+        local bladeFlurryActive = MasterBlaster:hasBuff("player",MasterBlaster.SpellList["Blade Flurry"]);
+		if (bladeFlurryActive ~= nil) then
+			return MasterBlaster.SpellList["Blade Flurry"]
 		end
 
 		return ""

@@ -4,7 +4,7 @@ MasterBlaster = {Locals = {}}
 local L = MasterBlaster.Locals
 
 -- variables to save game state
-MasterBlaster.versionNumber = '0.13';
+MasterBlaster.versionNumber = '0.15';
 MasterBlaster.enabled = true;
 MasterBlaster.playerName = UnitName("player");
 MasterBlaster.playerGUID = UnitGUID("player");
@@ -379,6 +379,16 @@ function MasterBlaster:detectSpecialization()
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = false;
 			MasterBlaster.unitPowerEnabled = true;
+		elseif (activeSpec == 2) then
+			spec = "feral";
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = true;
+			MasterBlaster.unitPowerEnabled = true;
+		elseif (activeSpec == 3) then
+			spec = "guardian";
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = true;
+			MasterBlaster.unitPowerEnabled = true;
 		else
 			spec = ""
 			MasterBlaster.enabled = false;
@@ -400,7 +410,12 @@ function MasterBlaster:detectSpecialization()
 			return;
 		end
 	elseif playerClass == "MAGE" then
-		if (activeSpec == 3) then
+		if (activeSpec == 1) then
+			spec = "arcane"
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = false;
+			MasterBlaster.unitPowerEnabled = false;
+		elseif (activeSpec == 3) then
 			spec = "frost_mage"
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = false;
@@ -431,6 +446,11 @@ function MasterBlaster:detectSpecialization()
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = true;
 			MasterBlaster.unitPowerEnabled = false;
+		elseif (activeSpec == 3) then
+			spec = "retribution"
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = true;
+			MasterBlaster.unitPowerEnabled = true;
 		else
 			spec = ""
 			MasterBlaster.enabled = false;
@@ -483,7 +503,12 @@ function MasterBlaster:detectSpecialization()
 			return;
 		end
 	elseif playerClass == "WARRIOR" then
-		if (activeSpec == 2) then
+		if (activeSpec == 1) then
+			spec = "arms"
+			MasterBlaster.enabled = true;
+			MasterBlaster.meleeSpec = true;
+			MasterBlaster.unitPowerEnabled = true;
+		elseif (activeSpec == 2) then
 			spec = "fury"
 			MasterBlaster.enabled = true;
 			MasterBlaster.meleeSpec = true;

@@ -267,7 +267,7 @@ MasterBlaster.frost_mage = {
 	end;
 
 	IntSpell = function(self)
-		-- interruptions, purge
+		-- interruptions, spellsteal
 		local d
 
 		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Counterspell"]) then
@@ -288,12 +288,12 @@ MasterBlaster.frost_mage = {
 		end
 
 		-- check if stealable buff is on target
-		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Purge"]) then
-			if IsSpellInRange(MasterBlaster.SpellList["Purge"], "target") == 1 then
+		if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Spellsteal"]) then
+			if IsSpellInRange(MasterBlaster.SpellList["Spellsteal"], "target") == 1 then
 				if (MasterBlaster:hasBuff("target", ".", 1)) then
-					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Purge"])
+					d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Spellsteal"])
 					if (d) and (d < 0.5) then
-						return MasterBlaster.SpellList["Purge"]
+						return MasterBlaster.SpellList["Spellsteal"]
 					end
 				end
 			end
@@ -306,7 +306,7 @@ MasterBlaster.frost_mage = {
 		-- major dps cooldowns
 		local d, name
 		
-		-- storm elemental
+		-- rune of power
 		if MasterBlaster.talents[3] == 2 then
 			if MasterBlaster:SpellAvailable(MasterBlaster.SpellList["Rune of Power"]) then
 				d = MasterBlaster:GetSpellCooldownRemaining(MasterBlaster.SpellList["Rune of Power"])
